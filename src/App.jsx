@@ -37,7 +37,7 @@ import {
   SmartphoneIcon
 } from 'lucide-react';
 
-const apiKey = "AIzaSyBQL-t09g8h7f9a4K3u5_OASEmE2lSZmQE";
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
 
 const App = () => {
