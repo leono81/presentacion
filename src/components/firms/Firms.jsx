@@ -65,84 +65,113 @@ function StepBlock({ step, onInView }) {
 // --- Visualizations ---
 
 function SatelliteVis() {
+  const cx = 160, cy = 155
+
+  // Fixed positions on tilted ellipses — labels always readable
   const polarSats = [
-    { name: 'Terra', sensor: 'MODIS', delay: 0 },
-    { name: 'Aqua', sensor: 'MODIS', delay: 0.4 },
-    { name: 'Suomi NPP', sensor: 'VIIRS', delay: 0.8 },
-    { name: 'NOAA-20', sensor: 'VIIRS', delay: 1.2 },
-    { name: 'NOAA-21', sensor: 'VIIRS', delay: 1.6 },
+    { name: 'Terra', sensor: 'MODIS', x: 45, y: 60, color: '#38BDF8', delay: 0 },
+    { name: 'Aqua', sensor: 'MODIS', x: 275, y: 75, color: '#38BDF8', delay: 0.6 },
+    { name: 'Suomi NPP', sensor: 'VIIRS', x: 25, y: 195, color: '#8B5CF6', delay: 1.2 },
+    { name: 'NOAA-20', sensor: 'VIIRS', x: 280, y: 220, color: '#8B5CF6', delay: 1.8 },
+    { name: 'NOAA-21', sensor: 'VIIRS', x: 160, y: 30, color: '#8B5CF6', delay: 2.4 },
+  ]
+
+  const geos = [
+    { name: 'GOES 16', x: 75, y: 270, delay: 0 },
+    { name: 'GOES 18', x: 245, y: 270, delay: 1 },
   ]
 
   return (
-    <div className="w-full max-w-sm mx-auto">
-      {/* Orbit diagram */}
-      <div className="relative mx-auto w-48 h-48 md:w-56 md:h-56 mb-5">
-        {/* Polar orbit ring */}
-        <div className="absolute inset-2 rounded-full border border-dashed border-sky-accent/20 animate-[spin_80s_linear_infinite]" />
-        {/* Geostationary orbit ring */}
-        <div className="absolute inset-8 rounded-full border border-amber-400/10" />
+    <div className="w-full max-w-md mx-auto">
+      <svg viewBox="0 0 320 320" className="w-full h-auto">
+        <defs>
+          <radialGradient id="earthGlow">
+            <stop offset="0%" stopColor="rgb(16 185 129)" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="rgb(16 185 129)" stopOpacity="0" />
+          </radialGradient>
+        </defs>
 
-        {/* Earth / TdF center */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-emerald-accent/10 to-sky-accent/5 border border-emerald-accent/20 flex flex-col items-center justify-center">
-            <span className="font-mono text-[8px] md:text-[9px] text-emerald-accent/80 font-bold tracking-wide">TIERRA DEL</span>
-            <span className="font-mono text-[8px] md:text-[9px] text-emerald-accent/80 font-bold tracking-wide">FUEGO</span>
-            <span className="font-mono text-[7px] text-slate-text/50 mt-0.5">54°S · 68°O</span>
-          </div>
+        {/* Polar orbit ellipses — 3 tilted paths */}
+        <ellipse cx={cx} cy={cy} rx="130" ry="50" fill="none" stroke="#38BDF8" strokeWidth="0.7" strokeDasharray="4 3" opacity="0.2"
+          transform={`rotate(-25 ${cx} ${cy})`} />
+        <ellipse cx={cx} cy={cy} rx="130" ry="55" fill="none" stroke="#8B5CF6" strokeWidth="0.7" strokeDasharray="4 3" opacity="0.2"
+          transform={`rotate(25 ${cx} ${cy})`} />
+        <ellipse cx={cx} cy={cy} rx="135" ry="48" fill="none" stroke="#8B5CF6" strokeWidth="0.5" strokeDasharray="4 3" opacity="0.12"
+          transform={`rotate(0 ${cx} ${cy})`} />
+
+        {/* Earth glow + core */}
+        <circle cx={cx} cy={cy} r="50" fill="url(#earthGlow)" />
+        <circle cx={cx} cy={cy} r="36" fill="none" stroke="rgb(16 185 129)" strokeWidth="1" opacity="0.6" />
+        <circle cx={cx} cy={cy} r="36" fill="rgb(16 185 129)" opacity="0.04" />
+
+        {/* TdF label */}
+        <text x={cx} y={cy - 8} textAnchor="middle" fontSize="8" fontWeight="bold" fill="rgb(16 185 129)" opacity="0.9" fontFamily="monospace">TIERRA DEL</text>
+        <text x={cx} y={cy + 2} textAnchor="middle" fontSize="8" fontWeight="bold" fill="rgb(16 185 129)" opacity="0.9" fontFamily="monospace">FUEGO</text>
+        <text x={cx} y={cy + 14} textAnchor="middle" fontSize="6" fill="rgb(148 163 184)" opacity="0.5" fontFamily="monospace">54°S · 68°O</text>
+
+        {/* Polar satellites — fixed positions with scan beams */}
+        {polarSats.map((sat) => (
+          <g key={sat.name}>
+            {/* Scan beam to Earth */}
+            <motion.line x1={sat.x} y1={sat.y} x2={cx} y2={cy}
+              stroke={sat.color} strokeWidth="0.5" strokeDasharray="3 4"
+              animate={{ opacity: [0.05, 0.25, 0.05] }}
+              transition={{ repeat: Infinity, duration: 3, delay: sat.delay }}
+            />
+            {/* Satellite pulse ring */}
+            <motion.circle cx={sat.x} cy={sat.y} r="10" fill={sat.color} opacity="0.06"
+              animate={{ r: [8, 12, 8], opacity: [0.06, 0.12, 0.06] }}
+              transition={{ repeat: Infinity, duration: 2.5, delay: sat.delay }}
+            />
+            {/* Satellite dot */}
+            <circle cx={sat.x} cy={sat.y} r="5" fill={sat.color} opacity="0.9" />
+            <circle cx={sat.x} cy={sat.y} r="2.5" fill="white" opacity="0.4" />
+            {/* Label — always horizontal */}
+            <text x={sat.x} y={sat.y - 10} textAnchor="middle" fontSize="7" fontWeight="bold" fill={sat.color} fontFamily="monospace">{sat.name}</text>
+            <text x={sat.x} y={sat.y + 17} textAnchor="middle" fontSize="5.5" fill="rgb(148 163 184)" opacity="0.5" fontFamily="monospace">{sat.sensor}</text>
+          </g>
+        ))}
+
+        {/* GOES geostationary */}
+        {geos.map((geo) => (
+          <g key={geo.name}>
+            <motion.line x1={geo.x} y1={geo.y} x2={cx} y2={cy}
+              stroke="rgb(251 191 36)" strokeWidth="0.5" strokeDasharray="2 3"
+              animate={{ opacity: [0.08, 0.2, 0.08] }}
+              transition={{ repeat: Infinity, duration: 2, delay: geo.delay }}
+            />
+            <motion.circle cx={geo.x} cy={geo.y} r="5" fill="rgb(251 191 36)" opacity="0.9"
+              animate={{ r: [5, 6, 5] }}
+              transition={{ repeat: Infinity, duration: 2, delay: geo.delay }}
+            />
+            <circle cx={geo.x} cy={geo.y} r="2" fill="white" opacity="0.3" />
+            <text x={geo.x} y={geo.y - 10} textAnchor="middle" fontSize="7" fontWeight="bold" fill="rgb(251 191 36)" fontFamily="monospace">{geo.name}</text>
+            <text x={geo.x} y={geo.y + 16} textAnchor="middle" fontSize="5.5" fill="rgb(148 163 184)" opacity="0.5" fontFamily="monospace">c/10 min</text>
+          </g>
+        ))}
+
+        {/* Orbit type labels */}
+        <text x="160" y="310" textAnchor="middle" fontSize="6" fill="rgb(148 163 184)" opacity="0.35" fontFamily="monospace" letterSpacing="1.5">ÓRBITA POLAR × 5  ·  GEOESTACIONARIOS × 2</text>
+      </svg>
+
+      {/* Legend + callout */}
+      <div className="flex items-center justify-center gap-5 -mt-2">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-sky-accent" />
+          <span className="font-mono text-[10px] text-slate-text/60">MODIS</span>
         </div>
-
-        {/* Scan lines */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
-          <motion.line x1="25" y1="20" x2="48" y2="42" stroke="rgb(56 189 248)" strokeWidth="0.3" strokeDasharray="2 2"
-            animate={{ opacity: [0.05, 0.3, 0.05] }} transition={{ repeat: Infinity, duration: 3, delay: 0 }} />
-          <motion.line x1="75" y1="20" x2="52" y2="42" stroke="rgb(56 189 248)" strokeWidth="0.3" strokeDasharray="2 2"
-            animate={{ opacity: [0.05, 0.3, 0.05] }} transition={{ repeat: Infinity, duration: 3, delay: 1 }} />
-          <motion.line x1="70" y1="75" x2="55" y2="55" stroke="rgb(251 191 36)" strokeWidth="0.3" strokeDasharray="2 2"
-            animate={{ opacity: [0.05, 0.3, 0.05] }} transition={{ repeat: Infinity, duration: 3, delay: 2 }} />
-        </svg>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-violet-accent" />
+          <span className="font-mono text-[10px] text-slate-text/60">VIIRS</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+          <span className="font-mono text-[10px] text-slate-text/60">GOES</span>
+        </div>
       </div>
-
-      {/* Satellite fleet listing */}
-      <div className="space-y-3">
-        {/* Polar satellites */}
-        <div>
-          <div className="text-center mb-2">
-            <span className="font-mono text-[9px] text-sky-accent/60 uppercase tracking-widest">Órbita polar — 5 satélites</span>
-          </div>
-          <div className="flex flex-wrap justify-center gap-1.5">
-            {polarSats.map((sat) => (
-              <motion.div key={sat.name}
-                animate={{ y: [0, -2, 0] }}
-                transition={{ repeat: Infinity, duration: 3, delay: sat.delay }}
-                className="px-2 py-1 rounded-md bg-sky-accent/8 border border-sky-accent/20"
-              >
-                <span className="font-mono text-[10px] font-bold text-sky-accent">{sat.name}</span>
-                <span className="font-mono text-[8px] text-slate-text/40 ml-1">{sat.sensor}</span>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Geostationary */}
-        <div>
-          <div className="text-center mb-2">
-            <span className="font-mono text-[9px] text-amber-400/60 uppercase tracking-widest">Geoestacionarios — fijos sobre América</span>
-          </div>
-          <div className="flex justify-center gap-1.5">
-            {['GOES 16', 'GOES 18'].map((name) => (
-              <div key={name} className="px-2 py-1 rounded-md bg-amber-400/8 border border-amber-400/20">
-                <span className="font-mono text-[10px] font-bold text-amber-400">{name}</span>
-                <span className="font-mono text-[8px] text-slate-text/40 ml-1">c/10min</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Polar advantage callout */}
-      <div className="mt-4 text-center">
-        <div className="inline-flex px-3 py-1.5 rounded-full bg-emerald-accent/8 border border-emerald-accent/20">
-          <span className="font-mono text-[10px] text-emerald-accent">+10 pasadas/día sobre Tierra del Fuego</span>
+      <div className="mt-3 text-center">
+        <div className="inline-flex px-4 py-2 rounded-full bg-emerald-accent/8 border border-emerald-accent/20">
+          <span className="font-mono text-[11px] text-emerald-accent font-medium">+10 pasadas/día sobre Tierra del Fuego</span>
         </div>
       </div>
     </div>
