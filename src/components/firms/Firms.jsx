@@ -10,24 +10,24 @@ const steps = [
     tag: '01',
     label: 'LOS SATÉLITES',
     title: 'Ojos en órbita polar',
-    body: '5 satélites polares — Terra, Aqua, Suomi NPP, NOAA-20, NOAA-21 — orbitan de polo a polo mientras la Tierra gira debajo. Los geoestacionarios GOES 16/18, fijos sobre América, completan la vigilancia cada 10 minutos.',
-    detail: 'Tierra del Fuego (54°S) recibe más de 10 pasadas diarias: las órbitas convergen en latitudes extremas y las franjas de observación se superponen.',
+    body: '5 satélites de órbita polar — Terra, Aqua, Suomi NPP, NOAA-20 y NOAA-21 — viajan de polo a polo mientras la Tierra gira debajo. Los geoestacionarios GOES 16 y 18, fijos sobre América, completan la vigilancia cada 10 minutos.',
+    detail: 'Tierra del Fuego (54°S) recibe más de 10 pasadas diarias porque las órbitas polares convergen en los extremos del planeta y sus franjas de observación se superponen.',
   },
   {
     id: 1,
     tag: '02',
     label: 'LOS SENSORES',
     title: 'Miden calor, no toman fotos',
-    body: 'VIIRS (375m/píxel) y MODIS (1km/píxel) miden radiación infrarroja en bandas de onda media y larga. No necesitan luz solar — detectan energía térmica de día, de noche, y a través de humo.',
-    detail: 'VIIRS detecta focos desde 20m² con mínima distorsión en los bordes. MODIS tiene mayor cobertura pero sus píxeles se deforman hasta 5km en los extremos de la franja.',
+    body: 'A bordo de esos satélites viajan dos instrumentos clave: VIIRS (375m/píxel) en Suomi NPP, NOAA-20 y NOAA-21; y MODIS (1km/píxel) en Terra y Aqua. Ambos miden radiación infrarroja — no necesitan luz solar.',
+    detail: 'VIIRS detecta focos desde 20m² con mínima distorsión en los bordes de la franja. MODIS tiene mayor cobertura pero sus píxeles se deforman hasta 5km en los extremos. Funcionan de día, de noche, a través de humo.',
   },
   {
     id: 2,
     tag: '03',
     label: 'EL ALGORITMO',
     title: 'Filtrado contextual',
-    body: 'Cada píxel se compara contra sus vecinos. Se filtran reflejos de agua, nubes, brillo solar y superficies calientes no relacionadas con fuego. Las detecciones se clasifican por nivel de confianza.',
-    detail: 'Un punto en el mapa no significa que todo el píxel esté en llamas — indica que dentro de ese área hay calor suficiente para activar la detección.',
+    body: 'Las estaciones terrestres reciben la señal cruda y aplican un algoritmo contextual: cada píxel se compara con sus vecinos, se filtran reflejos de agua, nubes y brillo solar. Las detecciones se clasifican por confianza y se publican en la API de FIRMS.',
+    detail: 'Un punto en el mapa no significa que todo el píxel esté en llamas — indica que en algún lugar dentro de esa área hay calor suficiente para activar la detección. La latencia es de 1 a 3 horas para datos NRT.',
   },
 ]
 
@@ -65,57 +65,84 @@ function StepBlock({ step, onInView }) {
 // --- Visualizations ---
 
 function SatelliteVis() {
-  return (
-    <div className="relative w-full max-w-xs mx-auto aspect-square">
-      <div className="absolute inset-4 rounded-full border border-dashed border-sky-accent/15 animate-[spin_60s_linear_infinite]" />
-      <div className="absolute inset-12 rounded-full border border-sky-accent/10" />
+  const polarSats = [
+    { name: 'Terra', sensor: 'MODIS', delay: 0 },
+    { name: 'Aqua', sensor: 'MODIS', delay: 0.4 },
+    { name: 'Suomi NPP', sensor: 'VIIRS', delay: 0.8 },
+    { name: 'NOAA-20', sensor: 'VIIRS', delay: 1.2 },
+    { name: 'NOAA-21', sensor: 'VIIRS', delay: 1.6 },
+  ]
 
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-accent/10 to-sky-accent/5 border border-emerald-accent/20 flex flex-col items-center justify-center">
-          <span className="font-mono text-[9px] text-emerald-accent/80 font-bold tracking-wide">TIERRA DEL</span>
-          <span className="font-mono text-[9px] text-emerald-accent/80 font-bold tracking-wide">FUEGO</span>
-          <span className="font-mono text-[7px] text-slate-text/50 mt-1">54°S · 68°O</span>
+  return (
+    <div className="w-full max-w-sm mx-auto">
+      {/* Orbit diagram */}
+      <div className="relative mx-auto w-48 h-48 md:w-56 md:h-56 mb-5">
+        {/* Polar orbit ring */}
+        <div className="absolute inset-2 rounded-full border border-dashed border-sky-accent/20 animate-[spin_80s_linear_infinite]" />
+        {/* Geostationary orbit ring */}
+        <div className="absolute inset-8 rounded-full border border-amber-400/10" />
+
+        {/* Earth / TdF center */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-emerald-accent/10 to-sky-accent/5 border border-emerald-accent/20 flex flex-col items-center justify-center">
+            <span className="font-mono text-[8px] md:text-[9px] text-emerald-accent/80 font-bold tracking-wide">TIERRA DEL</span>
+            <span className="font-mono text-[8px] md:text-[9px] text-emerald-accent/80 font-bold tracking-wide">FUEGO</span>
+            <span className="font-mono text-[7px] text-slate-text/50 mt-0.5">54°S · 68°O</span>
+          </div>
+        </div>
+
+        {/* Scan lines */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
+          <motion.line x1="25" y1="20" x2="48" y2="42" stroke="rgb(56 189 248)" strokeWidth="0.3" strokeDasharray="2 2"
+            animate={{ opacity: [0.05, 0.3, 0.05] }} transition={{ repeat: Infinity, duration: 3, delay: 0 }} />
+          <motion.line x1="75" y1="20" x2="52" y2="42" stroke="rgb(56 189 248)" strokeWidth="0.3" strokeDasharray="2 2"
+            animate={{ opacity: [0.05, 0.3, 0.05] }} transition={{ repeat: Infinity, duration: 3, delay: 1 }} />
+          <motion.line x1="70" y1="75" x2="55" y2="55" stroke="rgb(251 191 36)" strokeWidth="0.3" strokeDasharray="2 2"
+            animate={{ opacity: [0.05, 0.3, 0.05] }} transition={{ repeat: Infinity, duration: 3, delay: 2 }} />
+        </svg>
+      </div>
+
+      {/* Satellite fleet listing */}
+      <div className="space-y-3">
+        {/* Polar satellites */}
+        <div>
+          <div className="text-center mb-2">
+            <span className="font-mono text-[9px] text-sky-accent/60 uppercase tracking-widest">Órbita polar — 5 satélites</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-1.5">
+            {polarSats.map((sat) => (
+              <motion.div key={sat.name}
+                animate={{ y: [0, -2, 0] }}
+                transition={{ repeat: Infinity, duration: 3, delay: sat.delay }}
+                className="px-2 py-1 rounded-md bg-sky-accent/8 border border-sky-accent/20"
+              >
+                <span className="font-mono text-[10px] font-bold text-sky-accent">{sat.name}</span>
+                <span className="font-mono text-[8px] text-slate-text/40 ml-1">{sat.sensor}</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Geostationary */}
+        <div>
+          <div className="text-center mb-2">
+            <span className="font-mono text-[9px] text-amber-400/60 uppercase tracking-widest">Geoestacionarios — fijos sobre América</span>
+          </div>
+          <div className="flex justify-center gap-1.5">
+            {['GOES 16', 'GOES 18'].map((name) => (
+              <div key={name} className="px-2 py-1 rounded-md bg-amber-400/8 border border-amber-400/20">
+                <span className="font-mono text-[10px] font-bold text-amber-400">{name}</span>
+                <span className="font-mono text-[8px] text-slate-text/40 ml-1">c/10min</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {[
-        { name: 'VIIRS', sub: '375m', pos: 'top-2 left-[18%]', color: 'sky-accent' },
-        { name: 'MODIS', sub: '1km', pos: 'top-8 right-2', color: 'violet-accent' },
-        { name: 'GOES', sub: '10min', pos: 'bottom-12 right-4', color: 'amber-400' },
-      ].map((sat, i) => (
-        <motion.div
-          key={sat.name}
-          className={`absolute ${sat.pos}`}
-          animate={{ y: [0, -6, 0] }}
-          transition={{ repeat: Infinity, duration: 3, delay: i * 0.7 }}
-        >
-          <div className={`px-2.5 py-1.5 rounded-lg bg-${sat.color}/10 border border-${sat.color}/30`}>
-            <div className="flex items-center gap-1.5">
-              <div className={`w-1.5 h-1.5 rounded-full bg-${sat.color}`} />
-              <span className={`font-mono text-[11px] font-bold text-${sat.color}`}>{sat.name}</span>
-              <span className="font-mono text-[9px] text-slate-text/40">{sat.sub}</span>
-            </div>
-          </div>
-        </motion.div>
-      ))}
-
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
-        {[
-          { x1: 30, y1: 15, x2: 50, y2: 42, c: 'rgb(56 189 248)', d: 0 },
-          { x1: 80, y1: 20, x2: 52, y2: 42, c: 'rgb(139 92 246)', d: 0.7 },
-          { x1: 78, y1: 70, x2: 55, y2: 55, c: 'rgb(251 191 36)', d: 1.4 },
-        ].map((l, i) => (
-          <motion.line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}
-            stroke={l.c} strokeWidth="0.3" strokeDasharray="2 2"
-            animate={{ opacity: [0.1, 0.4, 0.1] }}
-            transition={{ repeat: Infinity, duration: 2, delay: l.d }}
-          />
-        ))}
-      </svg>
-
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap">
-        <div className="px-3 py-1.5 rounded-full bg-sky-accent/10 border border-sky-accent/20">
-          <span className="font-mono text-[10px] text-sky-accent">órbitas convergen en los polos</span>
+      {/* Polar advantage callout */}
+      <div className="mt-4 text-center">
+        <div className="inline-flex px-3 py-1.5 rounded-full bg-emerald-accent/8 border border-emerald-accent/20">
+          <span className="font-mono text-[10px] text-emerald-accent">+10 pasadas/día sobre Tierra del Fuego</span>
         </div>
       </div>
     </div>
