@@ -88,6 +88,15 @@ export default function Nav() {
               {l.label}
             </a>
           ))}
+          <a
+            href="https://penon.howenh-labs.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setMenuOpen(false)}
+            className="px-4 py-2 bg-emerald-accent/10 border border-emerald-accent/30 rounded-lg text-emerald-accent text-sm font-semibold hover:bg-emerald-accent/20 transition-colors text-center"
+          >
+            Ver en vivo
+          </a>
         </div>
       )}
     </nav>

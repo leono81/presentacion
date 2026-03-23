@@ -402,10 +402,17 @@ export default function Firms() {
             ))}
           </div>
 
-          {/* Right: visualization sticks in place (below sticky title) */}
+          {/* Right: visualization sticks in place (below sticky title) — desktop */}
           <div className="hidden md:block">
             <div className="sticky top-52 h-[calc(100vh-14rem)]">
               <StickyVis activeStep={activeStep} />
+            </div>
+          </div>
+
+          {/* Mobile: show visualization inline below each text block */}
+          <div className="md:hidden mt-4">
+            <div className="w-full">
+              {visComponents[activeStep]()}
             </div>
           </div>
         </div>

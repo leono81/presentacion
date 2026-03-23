@@ -620,15 +620,14 @@ function FwiRiskPanel() {
           {/* Labels below bar */}
           <div className="flex mt-2.5">
             {levels.map((l) => (
-              <div key={l.label} className="flex-1 text-center">
+              <div key={l.label} className="flex-1 text-center min-w-0">
                 <span
-                  className="text-[10px] font-mono font-semibold"
+                  className="text-[8px] sm:text-[10px] font-mono font-semibold block truncate"
                   style={{ color: exampleFwi >= l.min && exampleFwi <= l.max ? l.color : `${l.color}66` }}
                 >
                   {l.label}
                 </span>
-                <br />
-                <span className="text-[8px] text-slate-text/40 font-mono">
+                <span className="text-[7px] sm:text-[8px] text-slate-text/40 font-mono">
                   {l.min}–{l.max === 50 ? '50+' : l.max}
                 </span>
               </div>

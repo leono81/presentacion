@@ -70,11 +70,11 @@ export default function Alertas() {
           </div>
 
           {/* Timeline footer */}
-          <div className="flex items-center justify-center gap-8 mt-10">
+          <div className="flex items-center justify-center gap-4 sm:gap-8 mt-10">
             <TimelineStep icon={Flame} label="Satélite detecta" color="text-red-400" delay={0} inView={inView} />
-            <div className="w-12 h-px bg-gradient-to-r from-red-400/40 to-sky-accent/40" />
+            <div className="w-6 sm:w-12 h-px bg-gradient-to-r from-red-400/40 to-sky-accent/40" />
             <TimelineStep icon={Send} label="Telegram alerta" color="text-sky-accent" delay={0.3} inView={inView} />
-            <div className="w-12 h-px bg-gradient-to-r from-sky-accent/40 to-emerald-accent/40" />
+            <div className="w-6 sm:w-12 h-px bg-gradient-to-r from-sky-accent/40 to-emerald-accent/40" />
             <TimelineStep icon={Navigation} label="Ruta al foco" color="text-emerald-accent" delay={0.6} inView={inView} />
           </div>
         </motion.div>

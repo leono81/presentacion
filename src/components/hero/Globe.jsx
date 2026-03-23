@@ -304,6 +304,7 @@ function Scene() {
       <OrbitControls
         enableZoom={false}
         enablePan={false}
+        enableRotate={window.innerWidth >= 768}
         autoRotate
         autoRotateSpeed={0.3}
         minPolarAngle={Math.PI * 0.3}
