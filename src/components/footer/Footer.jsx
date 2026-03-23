@@ -1,3 +1,5 @@
+import { Mail, Phone, Globe } from 'lucide-react'
+
 export default function Footer() {
   return (
     <footer className="bg-surface border-t border-white/5 py-12">
@@ -40,7 +42,23 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-white/5 text-center">
+        {/* Contact */}
+        <div className="mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8">
+          <a href="mailto:leandro.terrado@howenh-labs.com" className="flex items-center gap-2 text-slate-text text-sm hover:text-emerald-accent transition-colors">
+            <Mail className="w-4 h-4" />
+            leandro.terrado@howenh-labs.com
+          </a>
+          <a href="tel:+542964404044" className="flex items-center gap-2 text-slate-text text-sm hover:text-emerald-accent transition-colors">
+            <Phone className="w-4 h-4" />
+            2964-404044
+          </a>
+          <a href="https://howenh-labs.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-text text-sm hover:text-emerald-accent transition-colors">
+            <Globe className="w-4 h-4" />
+            howenh-labs.com
+          </a>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-white/5 text-center">
           <p className="text-slate-text/30 text-xs">
             Donación al Pueblo Fueguino · {new Date().getFullYear()}
           </p>
