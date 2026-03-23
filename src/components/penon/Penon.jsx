@@ -11,8 +11,10 @@ const heroFeatures = [
   {
     icon: Factory,
     title: 'Filtro Industrial',
-    desc: 'Polígonos de parques industriales de Río Grande. Detecciones dentro se descartan automáticamente.',
+    desc: 'Polígonos de los parques industriales de Río Grande, Tolhuin y Ushuaia. Detecciones térmicas dentro de estas zonas se descartan automáticamente.',
     tag: 'Exclusivo',
+    stat: '3 ciudades',
+    statLabel: 'mapeadas',
     color: 'text-yellow-500',
     border: 'border-yellow-500/20',
     bg: 'bg-yellow-500/5',
@@ -21,8 +23,10 @@ const heroFeatures = [
   {
     icon: Fuel,
     title: 'Filtro Petrolero',
-    desc: 'Zonas de gas y petróleo del norte de la isla mapeadas y filtradas del análisis.',
+    desc: 'Plataformas offshore y zonas de explotación de gas en el Estrecho de Magallanes. Señales térmicas de antorchas de gas eliminadas del análisis.',
     tag: 'Exclusivo',
+    stat: 'Offshore',
+    statLabel: 'filtrado',
     color: 'text-orange-500',
     border: 'border-orange-500/20',
     bg: 'bg-orange-500/5',
@@ -31,10 +35,42 @@ const heroFeatures = [
 ]
 
 const supportFeatures = [
-  { icon: Satellite, title: 'NASA FIRMS', desc: 'VIIRS + MODIS, el estándar global.', color: 'text-sky-accent' },
-  { icon: Wind, title: 'Viento Real', desc: 'Velocidad y dirección sobre el mapa.', color: 'text-sky-accent' },
-  { icon: Gauge, title: 'Índice FWI', desc: 'Estándar canadiense de riesgo.', color: 'text-emerald-accent' },
-  { icon: Shield, title: 'Confianza', desc: 'Alta / Nominal / Baja por detección.', color: 'text-violet-accent' },
+  {
+    icon: Satellite,
+    title: 'NASA FIRMS',
+    stat: '375m',
+    statLabel: 'resolución VIIRS',
+    desc: 'Sensores VIIRS + MODIS — el estándar global para detección de incendios activos.',
+    color: 'text-sky-accent',
+    border: 'border-sky-accent/10',
+  },
+  {
+    icon: Wind,
+    title: 'Viento en Tiempo Real',
+    stat: 'Live',
+    statLabel: 'Open-Meteo',
+    desc: 'Velocidad y dirección del viento animada sobre el mapa. Clave para predecir propagación.',
+    color: 'text-sky-accent',
+    border: 'border-sky-accent/10',
+  },
+  {
+    icon: Gauge,
+    title: 'Índice FWI',
+    stat: '6',
+    statLabel: 'componentes',
+    desc: 'Fire Weather Index canadiense. Riesgo calculado en tiempo real con datos meteorológicos.',
+    color: 'text-emerald-accent',
+    border: 'border-emerald-accent/10',
+  },
+  {
+    icon: Shield,
+    title: 'Niveles de Confianza',
+    stat: '3',
+    statLabel: 'niveles',
+    desc: 'Alta / Nominal / Baja — cada detección clasificada para priorizar la respuesta.',
+    color: 'text-violet-accent',
+    border: 'border-violet-accent/10',
+  },
 ]
 
 export default function Penon() {
@@ -182,36 +218,42 @@ export default function Penon() {
           </div>
         </motion.div>
 
-        {/* ── Highlighted filters ── */}
+        {/* ── Highlighted filters (Exclusivo) ── */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           animate={inView ? 'visible' : 'hidden'}
-          className="grid md:grid-cols-2 gap-4 mb-16"
+          className="grid md:grid-cols-2 gap-4 mb-12"
         >
           {heroFeatures.map((f) => (
             <motion.div
               key={f.title}
               variants={fadeInUp}
-              className={`p-6 rounded-xl ${f.bg} border ${f.border} flex items-start gap-4 hover:border-opacity-40 transition-colors`}
+              className={`p-6 rounded-xl ${f.bg} border ${f.border} hover:border-opacity-40 transition-colors`}
             >
-              <div className={`p-3 rounded-lg bg-void/40 ${f.color}`}>
-                <f.icon className="w-6 h-6" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-1">
-                  <h3 className="font-display font-700 text-base">{f.title}</h3>
-                  <span className={`px-2 py-0.5 rounded-full border text-[9px] font-semibold tracking-wide ${f.tagBg}`}>
-                    {f.tag}
-                  </span>
+              <div className="flex items-start gap-4 mb-4">
+                <div className={`p-3 rounded-lg bg-void/40 ${f.color}`}>
+                  <f.icon className="w-6 h-6" />
                 </div>
-                <p className="text-sm text-slate-text leading-relaxed">{f.desc}</p>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-display font-700 text-base">{f.title}</h3>
+                    <span className={`px-2 py-0.5 rounded-full border text-[9px] font-semibold tracking-wide ${f.tagBg}`}>
+                      {f.tag}
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-text leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+              <div className="flex items-baseline gap-2 pl-[52px]">
+                <span className={`font-mono font-bold text-lg ${f.color}`}>{f.stat}</span>
+                <span className="text-xs text-slate-text">{f.statLabel}</span>
               </div>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* ── Supporting features (compact row) ── */}
+        {/* ── Supporting features ── */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -222,11 +264,24 @@ export default function Penon() {
             <motion.div
               key={f.title}
               variants={fadeInUp}
-              className="p-4 rounded-xl bg-surface-2/30 border border-white/5 text-center"
+              className={`relative p-5 pb-12 rounded-xl bg-surface-2/30 border ${f.border} hover:border-opacity-30 transition-colors overflow-hidden`}
             >
-              <f.icon className={`w-5 h-5 ${f.color} mx-auto mb-2`} />
-              <h4 className="font-display font-700 text-sm mb-1">{f.title}</h4>
-              <p className="text-xs text-slate-text leading-relaxed">{f.desc}</p>
+              {/* Wind particles background — only on Viento card */}
+              {f.title === 'Viento en Tiempo Real' && <WindParticles />}
+              {/* FWI risk bar — only on FWI card */}
+              {f.title === 'Índice FWI' && <FwiRiskBar />}
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-3">
+                  <f.icon className={`w-5 h-5 ${f.color} shrink-0`} />
+                  <h4 className="font-display font-700 text-sm">{f.title}</h4>
+                </div>
+                <div className="flex items-baseline gap-1.5 mb-2">
+                  <span className={`font-mono font-bold text-xl ${f.color}`}>{f.stat}</span>
+                  <span className="text-[10px] text-slate-text">{f.statLabel}</span>
+                </div>
+                <p className="text-xs text-slate-text leading-relaxed">{f.desc}</p>
+              </div>
             </motion.div>
           ))}
         </motion.div>
@@ -256,5 +311,67 @@ export default function Penon() {
       {/* Subtle aurora bottom edge */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-sky-accent/20 to-transparent" />
     </section>
+  )
+}
+
+/** Mini wind particle field for the Viento card */
+function WindParticles() {
+  const particles = Array.from({ length: 12 }, (_, i) => ({
+    y: 15 + (i % 4) * 22,
+    delay: i * 0.3,
+    duration: 2 + Math.random() * 1.5,
+    opacity: 0.08 + Math.random() * 0.12,
+    width: 20 + Math.random() * 30,
+  }))
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {particles.map((p, i) => (
+        <motion.div
+          key={i}
+          className="absolute h-px bg-gradient-to-r from-transparent via-sky-accent to-transparent rounded-full"
+          style={{
+            top: `${p.y}%`,
+            width: `${p.width}%`,
+            opacity: p.opacity,
+          }}
+          animate={{ left: ['-20%', '120%'] }}
+          transition={{
+            repeat: Infinity,
+            duration: p.duration,
+            delay: p.delay,
+            ease: 'linear',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+/** FWI risk level bar for the Índice FWI card */
+function FwiRiskBar() {
+  const levels = [
+    { color: '#22C55E', label: 'Bajo' },
+    { color: '#84CC16', label: 'Mod.' },
+    { color: '#EAB308', label: 'Alto' },
+    { color: '#F97316', label: 'Muy alto' },
+    { color: '#EF4444', label: 'Extremo' },
+  ]
+
+  return (
+    <div className="absolute bottom-2 left-4 right-4 pointer-events-none">
+      <div className="flex rounded-full overflow-hidden h-2">
+        {levels.map((l) => (
+          <div key={l.label} className="flex-1" style={{ backgroundColor: l.color, opacity: 0.7 }} />
+        ))}
+      </div>
+      <div className="flex justify-between mt-1">
+        {levels.map((l) => (
+          <span key={l.label} className="text-[6px] text-slate-text/60 font-mono" style={{ color: `${l.color}99` }}>
+            {l.label}
+          </span>
+        ))}
+      </div>
+    </div>
   )
 }
