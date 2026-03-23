@@ -84,8 +84,7 @@ export default function Donacion() {
             transition={{ delay: 0.9 }}
             className="text-slate-text/60 text-sm max-w-xl mx-auto leading-relaxed italic"
           >
-            Somos fueguinos. Construimos esto porque Tierra del Fuego no puede
-            seguir esperando que un presupuesto le resuelva el monitoreo de incendios.
+            Somos fueguinos. Construimos Penon para apoyar los recursos actuales de Tierra del Fuego.
             La herramienta ya existe. Solo falta que se use.
           </motion.p>
         </motion.div>
