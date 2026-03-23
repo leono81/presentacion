@@ -1,4 +1,4 @@
-import { Mail, Phone, Globe } from 'lucide-react'
+import { Mail, Phone, Globe, Linkedin } from 'lucide-react'
 
 export default function Footer() {
   return (
@@ -55,6 +55,10 @@ export default function Footer() {
           <a href="https://howenh-labs.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-text text-sm hover:text-emerald-accent transition-colors">
             <Globe className="w-4 h-4" />
             howenh-labs.com
+          </a>
+          <a href="https://www.linkedin.com/in/leandro-terrado" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-text text-sm hover:text-emerald-accent transition-colors">
+            <Linkedin className="w-4 h-4" />
+            LinkedIn
           </a>
         </div>
 
