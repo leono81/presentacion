@@ -1,6 +1,19 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
 
+/** Reloj UTC compacto para el HUD */
+function HudClock() {
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  const hh = String(now.getUTCHours()).padStart(2, '0')
+  const mm = String(now.getUTCMinutes()).padStart(2, '0')
+  const ss = String(now.getUTCSeconds()).padStart(2, '0')
+  return <span className="tabular-nums">{hh}:{mm}:{ss} UTC</span>
+}
+
 const FRAME_COUNT = 80
 const framePath = (i) => `/media/orbit/frame-${String(i + 1).padStart(3, '0')}.webp`
 
@@ -36,14 +49,89 @@ function ScrubMessage({ progress, msg }) {
   return (
     <motion.div
       style={{ opacity, y }}
-      className="absolute inset-x-0 bottom-[18%] text-center px-6 pointer-events-none"
+      className="absolute inset-x-0 bottom-[20%] text-center px-6 pointer-events-none"
     >
-      <div className="font-display font-800 text-3xl sm:text-5xl text-white-text mb-2 drop-shadow-[0_2px_20px_rgba(0,0,0,0.8)]">
+      <div className="font-display font-800 text-4xl sm:text-6xl lg:text-7xl text-white-text mb-3 drop-shadow-[0_2px_24px_rgba(0,0,0,0.85)]">
         {msg.title}
       </div>
-      <div className="font-mono text-xs sm:text-sm text-slate-text drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+      <div className="font-mono text-xs sm:text-base text-slate-text tracking-wide drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
         {msg.sub}
       </div>
+    </motion.div>
+  )
+}
+
+/** Telemetría de cámara orbital: esquinas HUD + coordenadas que viajan hacia TdF */
+function HudOverlay({ progress }) {
+  // El "viaje" baja desde el ecuador hasta Tierra del Fuego con el scroll
+  const latText = useTransform(progress, (v) => `LAT ${(v * -54.8).toFixed(1).padStart(5, ' ')}°`)
+  const lonText = useTransform(progress, (v) => `LON ${(-60 - v * 8.3).toFixed(1)}°`)
+  const corner = 'absolute w-5 h-5 border-sky-accent/30 pointer-events-none'
+
+  return (
+    <div className="absolute inset-0 pointer-events-none font-mono">
+      {/* Esquinas de viewfinder (las superiores debajo del nav fijo) */}
+      <div className={`${corner} top-16 left-4 border-t border-l`} />
+      <div className={`${corner} top-16 right-4 border-t border-r`} />
+      <div className={`${corner} bottom-4 left-4 border-b border-l`} />
+      <div className={`${corner} bottom-4 right-4 border-b border-r`} />
+
+      {/* Crosshair central sutil */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.12]">
+        <div className="w-10 h-px bg-white absolute -left-5 top-0" />
+        <div className="h-10 w-px bg-white absolute left-0 -top-5" />
+      </div>
+
+      {/* Sup. izq: REC + reloj */}
+      <div className="absolute top-[76px] left-8 sm:left-10 text-[9px] sm:text-[10px] text-slate-text/70 space-y-1">
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-fire telemetry-blink" />
+          <span className="text-fire/90 font-bold tracking-widest">FEED ORBITAL</span>
+        </div>
+        <div className="tracking-wider"><HudClock /></div>
+      </div>
+
+      {/* Sup. der: datos orbitales (Suomi NPP) */}
+      <div className="absolute top-[76px] right-8 sm:right-10 text-right text-[9px] sm:text-[10px] text-slate-text/70 space-y-1">
+        <div className="tracking-wider">ALT <span className="text-white-text/80">824 KM</span></div>
+        <div className="tracking-wider">VEL <span className="text-white-text/80">~27.000 KM/H</span></div>
+      </div>
+
+      {/* Inf. izq: coordenadas viajando al sur */}
+      <div className="absolute bottom-7 left-8 sm:left-10 text-[9px] sm:text-[10px] text-emerald-accent/80 space-y-1">
+        <motion.div className="tracking-wider tabular-nums">{latText}</motion.div>
+        <motion.div className="tracking-wider tabular-nums">{lonText}</motion.div>
+      </div>
+
+      {/* Inf. der: sensor */}
+      <div className="absolute bottom-7 right-8 sm:right-10 text-right text-[9px] sm:text-[10px] text-slate-text/60 space-y-1">
+        <div className="tracking-wider">SENSOR <span className="text-violet-accent/90">VIIRS I-4</span></div>
+        <div className="tracking-wider">3,74 µm · IR</div>
+      </div>
+    </div>
+  )
+}
+
+/** Rail vertical de etapas a la derecha */
+function StageRail({ progress }) {
+  return (
+    <div className="absolute right-8 sm:right-10 top-1/2 -translate-y-1/2 hidden sm:flex flex-col gap-8 pointer-events-none">
+      {messages.map((msg) => {
+        const [start, end] = msg.range
+        return <StageDot key={msg.title} progress={progress} start={start} end={end} label={msg.title} />
+      })}
+    </div>
+  )
+}
+
+function StageDot({ progress, start, end, label }) {
+  const active = useTransform(progress, [start - 0.02, start, end, end + 0.02], [0.25, 1, 1, 0.25])
+  return (
+    <motion.div style={{ opacity: active }} className="flex items-center gap-2 justify-end">
+      <span className="font-mono text-[8px] text-white/70 uppercase tracking-widest text-right max-w-[90px] leading-tight">
+        {label}
+      </span>
+      <span className="w-1.5 h-1.5 rounded-full bg-sky-accent shrink-0" />
     </motion.div>
   )
 }
@@ -166,6 +254,9 @@ export default function OrbitScrub() {
         {messages.map((msg) => (
           <ScrubMessage key={msg.title} progress={scrollYProgress} msg={msg} />
         ))}
+
+        <HudOverlay progress={scrollYProgress} />
+        <StageRail progress={scrollYProgress} />
 
         {/* Hint de scroll al inicio */}
         <ScrubHint progress={scrollYProgress} />

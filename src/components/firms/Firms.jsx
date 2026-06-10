@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import SectionTag from '../ui/SectionTag'
 import CountUp from '../ui/CountUp'
 import OrbitScrub from './OrbitScrub'
@@ -116,18 +116,15 @@ function StickyVis({ activeStep }) {
   const ActiveVis = visComponents[activeStep]
   return (
     <div className="flex items-center justify-center h-full">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeStep}
-          initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-          transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-          className="w-full"
-        >
-          <ActiveVis />
-        </motion.div>
-      </AnimatePresence>
+      <motion.div
+        key={activeStep}
+        initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+        className="w-full"
+      >
+        <ActiveVis />
+      </motion.div>
     </div>
   )
 }

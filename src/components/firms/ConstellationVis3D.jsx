@@ -1,7 +1,26 @@
-import { useRef, useState, useMemo, Suspense } from 'react'
+import { useRef, useState, useMemo, Suspense, Component } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { useTexture, Trail, Text, Billboard, Stars } from '@react-three/drei'
+import { useTexture, Trail, Html, Stars } from '@react-three/drei'
 import * as THREE from 'three'
+
+/** Si WebGL falla (contexto perdido, GPU sin recursos), la ficha sigue sirviendo */
+class GlBoundary extends Component {
+  state = { failed: false }
+  static getDerivedStateFromError() { return { failed: true } }
+  render() {
+    if (this.state.failed) {
+      return (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="font-mono text-[10px] text-slate-text/40 text-center px-6">
+            Vista 3D no disponible en este dispositivo.
+            <br />Seleccioná un satélite abajo para ver su ficha.
+          </span>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 const EARTH_R = 1.5
 
@@ -103,11 +122,12 @@ function PolarSat({ name, radius, speed, lonOffset, phase = 0, selected, onSelec
             <meshBasicMaterial color={data.color} transparent opacity={0.25} />
           </mesh>
         )}
-        <Billboard position={[0.12, 0.12, 0]}>
-          <Text fontSize={0.09} color={data.color} anchorX="left" anchorY="middle" fillOpacity={isSel ? 1 : 0.6}>
-            {name}
-          </Text>
-        </Billboard>
+        <Html position={[0.1, 0.1, 0]} style={{ pointerEvents: 'none', whiteSpace: 'nowrap' }}>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+            color: data.color, opacity: isSel ? 1 : 0.65,
+          }}>{name}</span>
+        </Html>
       </group>
     </group>
   )
@@ -150,11 +170,12 @@ function GeoSat({ name, lon, selected, onSelect }) {
           <meshBasicMaterial color="#FBBF24" transparent opacity={0.25} />
         </mesh>
       )}
-      <Billboard position={[pos.x, pos.y + 0.18, pos.z]}>
-        <Text fontSize={0.09} color="#FBBF24" anchorX="center" anchorY="middle" fillOpacity={isSel ? 1 : 0.6}>
-          {name}
-        </Text>
-      </Billboard>
+      <Html position={[pos.x, pos.y + 0.16, pos.z]} style={{ pointerEvents: 'none', whiteSpace: 'nowrap' }} center>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 700,
+          color: '#FBBF24', opacity: isSel ? 1 : 0.65,
+        }}>{name}</span>
+      </Html>
     </group>
   )
 }
@@ -190,9 +211,15 @@ export default function ConstellationVis3D() {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="relative aspect-square hud-frame rounded-2xl overflow-hidden bg-void/40">
-        <Canvas camera={{ position: [0, 1.6, 6.2], fov: 42 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
-          <Scene selected={selected} onSelect={setSelected} />
-        </Canvas>
+        <GlBoundary>
+          <Canvas
+            camera={{ position: [0, 1.6, 6.2], fov: 42 }}
+            dpr={[1, 1.5]}
+            gl={{ antialias: true, alpha: true }}
+          >
+            <Scene selected={selected} onSelect={setSelected} />
+          </Canvas>
+        </GlBoundary>
         <div className="absolute top-2 left-3 font-mono text-[8px] text-slate-text/40 uppercase tracking-widest pointer-events-none">
           Constelación en vivo · distancias no a escala
         </div>
