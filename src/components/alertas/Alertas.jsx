@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { fadeInUp } from '../../lib/animations'
-import SectionTag from '../ui/SectionTag'
 import { MapPin, Navigation, Send, Clock, Flame } from 'lucide-react'
 
 export default function Alertas() {
@@ -22,7 +21,6 @@ export default function Alertas() {
     <section className="relative py-24 md:py-32 bg-void overflow-hidden">
       <div className="max-w-5xl mx-auto px-6" ref={ref}>
         <div className="text-center mb-12">
-          <SectionTag>Respuesta inmediata</SectionTag>
           <motion.h2
             variants={fadeInUp}
             initial="hidden"

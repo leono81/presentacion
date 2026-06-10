@@ -30,7 +30,7 @@ export default function Footer() {
               </a>
             </p>
             <p className="text-slate-text/50 text-xs font-mono">
-              -54.8°S, -68.3°W · Tierra del Fuego, Argentina
+              54°48′S, 68°18′O · Tierra del Fuego, Malvinas e Islas del Atlántico Sur
             </p>
           </div>
 

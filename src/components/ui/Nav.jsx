@@ -36,6 +36,9 @@ export default function Nav() {
             PENON
           </span>
           <span className="text-slate-text text-xs font-mono hidden sm:inline">MONITOR</span>
+          <span className="hidden lg:inline text-[9px] font-mono text-slate-text/40 tracking-widest uppercase border-l border-white/10 pl-3 ml-1">
+            TDF · AIAS
+          </span>
         </a>
 
         {/* Desktop links */}
@@ -53,9 +56,9 @@ export default function Nav() {
             href="https://penon.howenh-labs.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-4 py-2 bg-emerald-accent/10 border border-emerald-accent/30 rounded-lg text-emerald-accent text-sm font-semibold hover:bg-emerald-accent/20 transition-colors"
+            className="px-4 py-2 bg-emerald-accent/10 border border-emerald-accent/30 rounded-lg text-emerald-accent text-sm font-semibold hover:bg-emerald-accent/20 transition-[background-color,transform] duration-150 active:scale-[0.98]"
           >
-            Ver en vivo
+            Ver sistema en vivo
           </a>
         </div>
 
@@ -95,7 +98,7 @@ export default function Nav() {
             onClick={() => setMenuOpen(false)}
             className="px-4 py-2 bg-emerald-accent/10 border border-emerald-accent/30 rounded-lg text-emerald-accent text-sm font-semibold hover:bg-emerald-accent/20 transition-colors text-center"
           >
-            Ver en vivo
+            Ver sistema en vivo
           </a>
         </div>
       )}

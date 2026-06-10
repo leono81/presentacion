@@ -2,7 +2,6 @@ import { motion } from 'framer-motion'
 import { useRef } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { fadeInUp, staggerContainer } from '../../lib/animations'
-import SectionTag from '../ui/SectionTag'
 import FwiDiagram from './FwiDiagram'
 import TdfOutline from './TdfOutline'
 import { Satellite, Factory, Fuel, Wind, Gauge, Shield } from 'lucide-react'
@@ -84,7 +83,6 @@ export default function Penon() {
       <div className="max-w-7xl mx-auto px-6" ref={ref}>
         {/* Header */}
         <div className="text-center mb-16">
-          <SectionTag>Penon Monitor</SectionTag>
           <motion.h2
             variants={fadeInUp}
             initial="hidden"

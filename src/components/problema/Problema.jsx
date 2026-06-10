@@ -3,7 +3,6 @@ import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-mot
 import { useInView } from 'react-intersection-observer'
 import { fadeInUp, staggerContainer } from '../../lib/animations'
 import CountUp from '../ui/CountUp'
-import SectionTag from '../ui/SectionTag'
 
 const fmtNum = (n) => n.toLocaleString('es-AR')
 
@@ -259,12 +258,24 @@ export default function Problema() {
   )
 
   return (
-    <section id="problema" className="relative py-24 md:py-32 bg-surface">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="problema" className="relative py-24 md:py-32 bg-surface overflow-hidden">
+      {/* Fondo cinematográfico — bosque fueguino al anochecer (ilustrativo) */}
+      <div className="absolute inset-x-0 top-0 h-[80vh] pointer-events-none" aria-hidden="true">
+        <video
+          className="w-full h-full object-cover opacity-25 motion-reduce:hidden"
+          src="/media/bosque-fueguino.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-surface/40 via-surface/70 to-surface" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-6">
         {/* Header */}
         <div ref={headerRef}>
-          <SectionTag>El Problema</SectionTag>
-
           <motion.h2
             variants={fadeInUp}
             initial="hidden"
@@ -348,16 +359,52 @@ export default function Problema() {
             variants={fadeInUp}
             initial="hidden"
             animate={statsInView ? 'visible' : 'hidden'}
-            className="relative p-8 md:p-12 rounded-2xl bg-gradient-to-r from-red-500/5 to-emerald-accent/5 border border-white/10 text-center"
+            className="relative p-8 md:p-12 rounded-2xl bg-gradient-to-r from-red-500/5 to-emerald-accent/5 border border-white/10 text-center overflow-hidden grain"
           >
             <div className="max-w-3xl mx-auto">
-              <p className="font-display font-700 text-xl md:text-2xl lg:text-3xl leading-snug mb-4">
+              <p className="font-display font-700 text-xl md:text-2xl lg:text-3xl leading-snug mb-8">
                 En <span className="text-emerald-accent">14 años</span> de restauración
                 se recuperaron <span className="font-mono text-emerald-accent"><CountUp to={233} /></span> hectáreas.
                 <br />
                 En <span className="text-amber-400">2 meses</span> se perdieron{' '}
                 <span className="font-mono text-amber-400"><CountUp to={12000} separator="." /></span>.
               </p>
+
+              {/* Barra de proporción: 233 vs 12.000 — la restauración es una astilla */}
+              <div className="max-w-xl mx-auto mb-8 space-y-3 text-left">
+                <div>
+                  <div className="flex justify-between font-mono text-[10px] mb-1.5">
+                    <span className="text-emerald-accent uppercase tracking-wider">Restaurado · 14 años</span>
+                    <span className="text-emerald-accent">233 ha</span>
+                  </div>
+                  <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={statsInView ? { width: '1.94%' } : {}}
+                      transition={{ duration: 1.2, delay: 0.6, ease: 'easeOut' }}
+                      className="h-full rounded-full bg-emerald-accent shadow-[0_0_12px_rgba(16,185,129,0.6)]"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between font-mono text-[10px] mb-1.5">
+                    <span className="text-amber-400 uppercase tracking-wider">Quemado · 2 meses</span>
+                    <span className="text-amber-400">12.000 ha</span>
+                  </div>
+                  <div className="h-3 rounded-full bg-white/[0.04] overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={statsInView ? { width: '100%' } : {}}
+                      transition={{ duration: 1.6, delay: 0.9, ease: 'easeOut' }}
+                      className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 shadow-[0_0_16px_rgba(239,68,68,0.4)]"
+                    />
+                  </div>
+                </div>
+                <p className="font-mono text-[10px] text-slate-text/50 text-center pt-1">
+                  La pérdida de 2 meses equivale a <span className="text-amber-400 font-bold">51×</span> lo restaurado en 14 años
+                </p>
+              </div>
+
               <p className="text-xs text-slate-text/60 font-mono">
                 Fuente: Dirección General de Desarrollo Forestal, Tierra del Fuego
               </p>

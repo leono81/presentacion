@@ -2,7 +2,6 @@ import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { fadeInUp, staggerContainer } from '../../lib/animations'
 import { Wrench, GraduationCap, RefreshCw, ArrowRight } from 'lucide-react'
-import SectionTag from '../ui/SectionTag'
 import CountUp from '../ui/CountUp'
 
 const compromisos = [
@@ -34,11 +33,6 @@ export default function Donacion() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-accent/20 to-transparent" />
 
       <div className="max-w-5xl mx-auto px-6" ref={ref}>
-        {/* Header */}
-        <div className="text-center mb-6">
-          <SectionTag>Nuestra propuesta</SectionTag>
-        </div>
-
         {/* Main reveal: $0 */}
         <motion.div
           variants={fadeInUp}
@@ -50,9 +44,12 @@ export default function Donacion() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={inView ? { scale: 1, opacity: 1 } : {}}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="font-mono text-7xl sm:text-8xl md:text-9xl font-bold text-white-text mb-3"
+            className="relative font-mono text-7xl sm:text-8xl md:text-9xl font-bold text-white-text mb-3"
           >
-            $<CountUp to={0} />
+            <span className="absolute inset-0 blur-3xl bg-emerald-accent/15 rounded-full scale-75" aria-hidden="true" />
+            <span className="relative" style={{ textShadow: '0 0 60px rgba(16,185,129,0.35)' }}>
+              $<CountUp to={0} />
+            </span>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -134,9 +131,9 @@ export default function Donacion() {
             href="https://penon.howenh-labs.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-accent text-void font-display font-700 rounded-xl hover:bg-emerald-accent/90 transition-colors"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-accent text-void font-display font-700 rounded-xl hover:bg-emerald-accent/90 transition-[background-color,transform] duration-150 active:scale-[0.98]"
           >
-            Ver el sistema en funcionamiento
+            Ver sistema en vivo
             <ArrowRight className="w-4 h-4" />
           </a>
           <p className="text-[11px] text-slate-text/40 mt-3">

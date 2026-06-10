@@ -1,6 +1,6 @@
 import { useRef, useMemo, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, useTexture, Html } from '@react-three/drei'
+import { OrbitControls, useTexture, Html, Stars, Trail } from '@react-three/drei'
 import * as THREE from 'three'
 
 /**
@@ -250,10 +250,12 @@ function PolarOrbit({ color, radius, speed, longitudeOffset, name }) {
       </mesh>
       {/* Satellite + label group — moves together */}
       <group ref={satRef}>
-        <mesh>
-          <sphereGeometry args={[0.06, 16, 16]} />
-          <meshBasicMaterial color={color} />
-        </mesh>
+        <Trail width={0.5} length={5} color={color} attenuation={(t) => t * t}>
+          <mesh>
+            <sphereGeometry args={[0.06, 16, 16]} />
+            <meshBasicMaterial color={color} />
+          </mesh>
+        </Trail>
         <mesh>
           <sphereGeometry args={[0.14, 16, 16]} />
           <meshBasicMaterial color={color} transparent opacity={0.15} />
@@ -285,6 +287,8 @@ function PolarOrbit({ color, radius, speed, longitudeOffset, name }) {
 function Scene() {
   return (
     <>
+      <Stars radius={60} depth={40} count={1800} factor={2.5} saturation={0} fade speed={0.4} />
+
       <ambientLight intensity={0.4} />
       <directionalLight position={[5, 3, 5]} intensity={1.2} color="#F8FAFC" />
       <pointLight position={[-4, -2, -3]} intensity={0.4} color="#10B981" />
