@@ -87,23 +87,25 @@ const limits = [
 
 // --- Text block: scrolls naturally, triggers vis change ---
 function StepBlock({ step, onInView }) {
+  // Línea de activación en el centro del viewport: el bloque que la cruza
+  // manda. Evita las zonas muertas del threshold con bloques altos.
   const [ref] = useInView({
-    threshold: 0.5,
+    rootMargin: '-45% 0px -45% 0px',
     onChange: (inView) => { if (inView) onInView(step.id) },
   })
 
   return (
     <div ref={ref} className="min-h-[70vh] flex items-center">
-      <div className="py-12">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-sky-accent/10 border border-sky-accent/20 flex items-center justify-center">
-            <span className="font-mono text-sm font-bold text-sky-accent">{step.tag}</span>
+      <div className="py-12 max-w-md">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-lg bg-sky-accent/10 border border-sky-accent/20 flex items-center justify-center">
+            <span className="font-mono text-xs font-bold text-sky-accent">{step.tag}</span>
           </div>
-          <span className="font-mono text-xs text-slate-text/50 uppercase tracking-widest">{step.label}</span>
+          <span className="font-mono text-[11px] text-slate-text/50 uppercase tracking-widest">{step.label}</span>
         </div>
-        <h3 className="font-display font-800 text-3xl md:text-4xl text-white-text mb-5 leading-tight">{step.title}</h3>
-        <p className="text-slate-text text-lg leading-relaxed mb-4">{step.body}</p>
-        <p className="text-slate-text/50 text-sm leading-relaxed border-l-2 border-sky-accent/20 pl-4">{step.detail}</p>
+        <h3 className="font-display font-800 text-2xl md:text-3xl text-white-text mb-4 leading-tight">{step.title}</h3>
+        <p className="text-slate-text text-[15px] leading-relaxed mb-4">{step.body}</p>
+        <p className="text-slate-text/50 text-[13px] leading-relaxed border-l-2 border-sky-accent/20 pl-4">{step.detail}</p>
       </div>
     </div>
   )
@@ -170,7 +172,7 @@ export default function Firms() {
 
       {/* Scrollytelling: text scrolls, vis is sticky */}
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-8 md:gap-16 relative">
+        <div className="grid md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-8 md:gap-12 relative">
           <div>
             {steps.map((step) => (
               <StepBlock key={step.id} step={step} onInView={setActiveStep} />

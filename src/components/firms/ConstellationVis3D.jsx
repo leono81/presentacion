@@ -209,7 +209,7 @@ export default function ConstellationVis3D() {
   const data = SATS[selected]
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <div className="relative aspect-square hud-frame rounded-2xl overflow-hidden bg-void/40">
         <GlBoundary>
           <Canvas

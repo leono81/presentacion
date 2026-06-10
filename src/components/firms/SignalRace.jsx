@@ -70,7 +70,7 @@ export default function SignalRace() {
   const showTelegram = phase >= 4
 
   return (
-    <div ref={ref} className="w-full max-w-sm mx-auto">
+    <div ref={ref} className="w-full max-w-md mx-auto">
       {/* Cronómetro */}
       <div className="flex items-center justify-between mb-3 px-1">
         <span className="font-mono text-[10px] text-slate-text/50 uppercase tracking-widest">Tiempo desde la observación</span>

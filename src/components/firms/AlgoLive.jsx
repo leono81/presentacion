@@ -65,7 +65,7 @@ export default function AlgoLive() {
   const visibleLog = LOG_LINES.slice(0, phase + 1).flat()
 
   return (
-    <div ref={ref} className="w-full max-w-sm mx-auto">
+    <div ref={ref} className="w-full max-w-md mx-auto">
       {/* Fase actual */}
       <div className="flex items-center justify-between mb-2">
         <span className="font-mono text-[10px] text-slate-text/50 uppercase tracking-widest">Algoritmo contextual · VIIRS C2</span>

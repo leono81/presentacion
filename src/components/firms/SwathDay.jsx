@@ -78,7 +78,7 @@ export default function SwathDay() {
   const mm = String(Math.round(mins % 60)).padStart(2, '0')
 
   return (
-    <div ref={ref} className="w-full max-w-md mx-auto">
+    <div ref={ref} className="w-full max-w-xl mx-auto">
       <div className="flex items-center justify-between mb-1 px-1">
         <span className="font-mono text-[10px] text-slate-text/50 uppercase tracking-widest">Un día de pasadas · polo sur</span>
         <span className="font-mono text-[10px] text-white-text tabular-nums">{hh}:{mm} <span className="text-slate-text/40">/ 24 hs</span></span>

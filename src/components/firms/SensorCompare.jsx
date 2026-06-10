@@ -79,7 +79,7 @@ export default function SensorCompare() {
   const onPointerUp = () => { draggingRef.current = false }
 
   return (
-    <div className="w-full max-w-md mx-auto select-none">
+    <div className="w-full max-w-xl mx-auto select-none">
       <div className="flex justify-between mb-2">
         <span className="font-mono text-[10px] font-bold text-violet-accent">◂ VIIRS · 375 m</span>
         <span className="font-mono text-[10px] font-bold text-sky-accent">MODIS · 1 km ▸</span>
