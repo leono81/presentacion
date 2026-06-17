@@ -17,23 +17,31 @@ function HudClock() {
 const FRAME_COUNT = 80
 const framePath = (i) => `/media/orbit/frame-${String(i + 1).padStart(3, '0')}.webp`
 
-/** Mensajes sincronizados al progreso del scroll */
+/** Mensajes sincronizados al scroll — un solo arco: lugar → fuente → lugar → herramienta */
 const messages = [
   {
-    range: [0.05, 0.3],
-    title: '7 satélites',
-    sub: 'vigilan el hemisferio en este momento',
+    range: [0.03, 0.17],
+    title: '54° Sur',
+    sub: 'donde el continente americano se termina',
   },
   {
-    range: [0.38, 0.62],
-    title: '14 órbitas por día',
-    sub: 'cada satélite polar, de polo a polo a 27.000 km/h',
+    range: [0.22, 0.4],
+    title: 'NASA FIRMS',
+    sub: 'siete satélites observan la Tierra desde 824 km de altura',
   },
   {
-    range: [0.7, 0.95],
-    title: 'Cobertura global 2× diaria',
-    sub: 'y mucho más frecuente sobre Tierra del Fuego',
+    range: [0.45, 0.62],
+    title: 'Tierra del Fuego',
+    sub: 'cada órbita la cruza — vigilancia sobre el bosque más austral',
   },
+]
+
+/** El clímax: el satélite ya está sobre la isla y aparece la herramienta */
+const WORDMARK_RANGE = [0.68, 1]
+
+const railStages = [
+  ...messages.map((m) => ({ label: m.title, range: m.range })),
+  { label: 'Penon Monitor', range: WORDMARK_RANGE, isDestination: true },
 ]
 
 function ScrubMessage({ progress, msg }) {
@@ -61,11 +69,8 @@ function ScrubMessage({ progress, msg }) {
   )
 }
 
-/** Telemetría de cámara orbital: esquinas HUD + coordenadas que viajan hacia TdF */
-function HudOverlay({ progress }) {
-  // El "viaje" baja desde el ecuador hasta Tierra del Fuego con el scroll
-  const latText = useTransform(progress, (v) => `LAT ${(v * -54.8).toFixed(1).padStart(5, ' ')}°`)
-  const lonText = useTransform(progress, (v) => `LON ${(-60 - v * 8.3).toFixed(1)}°`)
+/** Telemetría de cámara orbital: esquinas HUD + objetivo de observación (Río Grande, TdF) */
+function HudOverlay() {
   const corner = 'absolute w-5 h-5 border-sky-accent/30 pointer-events-none'
 
   return (
@@ -86,7 +91,7 @@ function HudOverlay({ progress }) {
       <div className="absolute top-[76px] left-8 sm:left-10 text-[9px] sm:text-[10px] text-slate-text/70 space-y-1">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-fire telemetry-blink" />
-          <span className="text-fire/90 font-bold tracking-widest">FEED ORBITAL</span>
+          <span className="text-fire/90 font-bold tracking-widest">NASA FIRMS · LIVE</span>
         </div>
         <div className="tracking-wider"><HudClock /></div>
       </div>
@@ -97,10 +102,12 @@ function HudOverlay({ progress }) {
         <div className="tracking-wider">VEL <span className="text-white-text/80">~27.000 KM/H</span></div>
       </div>
 
-      {/* Inf. izq: coordenadas viajando al sur */}
-      <div className="absolute bottom-7 left-8 sm:left-10 text-[9px] sm:text-[10px] text-emerald-accent/80 space-y-1">
-        <motion.div className="tracking-wider tabular-nums">{latText}</motion.div>
-        <motion.div className="tracking-wider tabular-nums">{lonText}</motion.div>
+      {/* Inf. izq: objetivo de observación — Río Grande, Tierra del Fuego */}
+      <div className="absolute bottom-7 left-8 sm:left-10 text-[9px] sm:text-[10px] space-y-1">
+        <div className="tracking-wider text-slate-text/60">
+          TARGET <span className="text-emerald-accent/90 font-bold">TIERRA DEL FUEGO</span>
+        </div>
+        <div className="tracking-wider tabular-nums text-emerald-accent/80">LAT 53.79°S · LON 67.70°O</div>
       </div>
 
       {/* Inf. der: sensor */}
@@ -116,22 +123,39 @@ function HudOverlay({ progress }) {
 function StageRail({ progress }) {
   return (
     <div className="absolute right-8 sm:right-10 top-1/2 -translate-y-1/2 hidden sm:flex flex-col gap-8 pointer-events-none">
-      {messages.map((msg) => {
-        const [start, end] = msg.range
-        return <StageDot key={msg.title} progress={progress} start={start} end={end} label={msg.title} />
+      {railStages.map((s) => {
+        const [start, end] = s.range
+        return (
+          <StageDot
+            key={s.label}
+            progress={progress}
+            start={start}
+            end={end}
+            label={s.label}
+            isDestination={s.isDestination}
+          />
+        )
       })}
     </div>
   )
 }
 
-function StageDot({ progress, start, end, label }) {
+function StageDot({ progress, start, end, label, isDestination }) {
   const active = useTransform(progress, [start - 0.02, start, end, end + 0.02], [0.25, 1, 1, 0.25])
   return (
     <motion.div style={{ opacity: active }} className="flex items-center gap-2 justify-end">
-      <span className="font-mono text-[8px] text-white/70 uppercase tracking-widest text-right max-w-[90px] leading-tight">
+      <span
+        className={`font-mono text-[8px] uppercase tracking-widest text-right max-w-[90px] leading-tight ${
+          isDestination ? 'text-emerald-accent/90 font-bold' : 'text-white/70'
+        }`}
+      >
         {label}
       </span>
-      <span className="w-1.5 h-1.5 rounded-full bg-sky-accent shrink-0" />
+      <span
+        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+          isDestination ? 'bg-emerald-accent' : 'bg-sky-accent'
+        }`}
+      />
     </motion.div>
   )
 }
@@ -255,13 +279,94 @@ export default function OrbitScrub() {
           <ScrubMessage key={msg.title} progress={scrollYProgress} msg={msg} />
         ))}
 
-        <HudOverlay progress={scrollYProgress} />
+        {/* Clímax: el wordmark de la herramienta */}
+        <WordmarkReveal progress={scrollYProgress} />
+
+        <HudOverlay />
         <StageRail progress={scrollYProgress} />
 
-        {/* Hint de scroll al inicio */}
+        {/* Hint de scroll al inicio y al cierre */}
         <ScrubHint progress={scrollYProgress} />
+        <FinalHint progress={scrollYProgress} />
       </div>
     </div>
+  )
+}
+
+/** Clímax del descenso: el wordmark de Penon aparece cuando el satélite ya está sobre la isla */
+function WordmarkReveal({ progress }) {
+  const start = WORDMARK_RANGE[0]
+  const opacity = useTransform(progress, [start, start + 0.07], [0, 1])
+  const y = useTransform(progress, [start, start + 0.1], [28, 0])
+  const scale = useTransform(progress, [start, start + 0.14], [0.92, 1])
+  const tracking = useTransform(progress, [start, start + 0.16], ['-0.03em', '0.06em'])
+  const subOpacity = useTransform(progress, [start + 0.08, start + 0.18], [0, 1])
+  const lineW = useTransform(progress, [start + 0.03, start + 0.18], ['0%', '100%'])
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center px-6 pointer-events-none"
+    >
+      <motion.div style={{ y, scale }}>
+        {/* Bracket superior HUD */}
+        <motion.div
+          style={{ width: lineW }}
+          className="mx-auto mb-5 h-px max-w-[min(78vw,640px)] bg-gradient-to-r from-transparent via-emerald-accent/60 to-transparent"
+        />
+
+        <motion.h2
+          style={{ letterSpacing: tracking }}
+          className="font-display font-800 text-5xl sm:text-7xl lg:text-8xl text-white-text drop-shadow-[0_2px_30px_rgba(0,0,0,0.9)]"
+        >
+          PENON{' '}
+          <span className="text-emerald-accent drop-shadow-[0_0_30px_rgba(16,185,129,0.55)]">
+            MONITOR
+          </span>
+        </motion.h2>
+
+        {/* Bracket inferior HUD */}
+        <motion.div
+          style={{ width: lineW }}
+          className="mx-auto mt-5 h-px max-w-[min(78vw,640px)] bg-gradient-to-r from-transparent via-emerald-accent/60 to-transparent"
+        />
+
+        <motion.p
+          style={{ opacity: subOpacity }}
+          className="mt-6 font-mono text-xs sm:text-base text-slate-text tracking-wide max-w-xl mx-auto drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]"
+        >
+          Ayudando con la identificación temprana de incendios forestales
+        </motion.p>
+
+        <motion.div
+          style={{ opacity: subOpacity }}
+          className="mt-5 inline-flex items-center gap-2 font-mono text-[10px] sm:text-xs text-emerald-accent/80 tracking-widest uppercase"
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-accent telemetry-blink" />
+          Sistema activo · Tierra del Fuego
+        </motion.div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+/** Hint de cierre: invita a seguir hacia el resto del sistema */
+function FinalHint({ progress }) {
+  const opacity = useTransform(progress, [0.9, 0.97], [0, 1])
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="absolute bottom-6 inset-x-0 flex flex-col items-center gap-1 text-slate-text pointer-events-none"
+    >
+      <span className="font-mono text-[9px] tracking-[0.25em] uppercase">Conocé el sistema</span>
+      <motion.svg
+        width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5"
+        animate={{ y: [0, 5, 0] }}
+        transition={{ repeat: Infinity, duration: 1.8 }}
+      >
+        <path d="M4 6l4 4 4-4" />
+      </motion.svg>
+    </motion.div>
   )
 }
 
