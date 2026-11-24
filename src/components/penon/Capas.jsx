@@ -12,12 +12,12 @@ import './capas.css'
 // una entrada por capa, en el orden en que caen (la 0 es el suelo, la 5 el satélite). El color de
 // cada una es el mismo que esa fuente tiene en el resto de la página.
 const leyenda = [
-  { nombre: 'Capa territorial', desc: 'La isla, sus lagos y el bosque nativo.', color: '#64748B', cuanto: 1 },
-  { nombre: 'Capa de peligro FWI', desc: 'El peligro de incendio del día en tres zonas, con observaciones oficiales del SMN.', color: '#10B981', cuanto: 0.22 },
-  { nombre: 'Capa industrial y petrolera', desc: 'Lo que cae en un parque industrial o un yacimiento se rotula: no se descarta.', color: '#F97316', cuanto: 0.16 },
-  { nombre: 'Capa de rayos', desc: 'Las descargas que mide el GLM del GOES-19, revisadas cada 10 minutos.', color: '#A78BFA', cuanto: 0.2 },
-  { nombre: 'Capa de contexto', desc: 'Viento, áreas protegidas y poblados: lo que hay alrededor de cada foco.', color: '#38BDF8', cuanto: 0.14 },
-  { nombre: 'Capa satelital', desc: 'Focos de calor de NOAA-20 y NOAA-21, directo del bucket público de NOAA cada 10 minutos, y de MODIS vía NASA FIRMS.', color: '#EF4444', cuanto: 1 },
+  { nombre: 'Capa territorial', desc: 'La isla y su territorio: IDE Tierra del Fuego, IGN y el relevamiento de rutas del Ministerio de Producción y Ambiente.', color: '#64748B', cuanto: 1, capas: ['Bosque nativo (OTBN)', 'Humedales y turberas', 'Relieve', 'Aguas', 'Rutas y huellas', 'Puntos de ruta', 'Parajes y estancias'] },
+  { nombre: 'Capa de peligro FWI', desc: 'El peligro del día en tres zonas, con observaciones del SMN y la carga de la brigada en Tolhuin. El viento es de modelo.', color: '#10B981', cuanto: 0.22, capas: ['Riesgo Incendio', 'Muestras de campo', 'Viento'] },
+  { nombre: 'Capa industrial y petrolera', desc: 'Lo que cae en un parque industrial o un yacimiento se rotula: no se descarta.', color: '#F97316', cuanto: 0.16, capas: ['Industrial', 'Petrolera'] },
+  { nombre: 'Capa de rayos', desc: 'Las descargas que mide el GLM del GOES-19, revisadas cada 10 minutos.', color: '#22D3EE', cuanto: 0.16, capas: ['Rayos'] },
+  { nombre: 'Capa de contexto', desc: 'Lo que hay alrededor de cada foco: quién está cerca, qué se protege y qué ardió antes.', color: '#A78BFA', cuanto: 0.16, capas: ['Áreas Protegidas', 'Poblados', 'Ejidos municipales', 'Emergencias', 'Sitios de fuego', 'Incendios históricos', 'Volteos por viento'] },
+  { nombre: 'Capa satelital', desc: 'Focos de calor de NOAA-20 y NOAA-21, directo del bucket público de NOAA cada 10 minutos (entre 45 minutos y 1 hora antes que por FIRMS), y de MODIS vía NASA FIRMS.', color: '#EF4444', cuanto: 1, capas: ['Fuego GOES (10 min)', 'GOES en vivo', 'VIIRS día', 'Satélite HD'] },
 ]
 
 const proximas = [
@@ -233,7 +233,7 @@ export default function Capas() {
         </div>
 
         <figure className="cp-lamina">
-          <div className="cp-pila" style={{ maxWidth: `calc(58vh * ${(VB.w / VB.h).toFixed(3)})` }}>
+          <div className="cp-pila" style={{ maxWidth: `max(320px, calc((100vh - 540px) * ${(VB.w / VB.h).toFixed(3)}))` }}>
             {/* el suelo: la isla entera con su mar, el bosque nativo rayado, los lagos y la costa */}
             <svg className="cp-suelo" viewBox={viewBox} role="img" aria-label="La Isla Grande de Tierra del Fuego en perspectiva, con las capas de Penon apiladas encima">
               <defs>
@@ -390,6 +390,13 @@ export default function Capas() {
               <li key={c.nombre} data-capa={i} style={{ '--lavado': c.color }}>
                 <span className="cp-nombre">{c.nombre}</span>
                 <span className="cp-desc">{c.desc}</span>
+                {c.capas && (
+                  <span className="cp-chips">
+                    {c.capas.map((n) => (
+                      <span key={n}>{n}</span>
+                    ))}
+                  </span>
+                )}
               </li>
             ))}
           </ol>
@@ -404,7 +411,7 @@ export default function Capas() {
               ))}
             </ul>
           </div>
-          <p className="cp-fuentes">Las capas de Penon sobre la isla real. Los focos y los rayos del dibujo son ilustrativos. Fuentes: IGN, IDE Tierra del Fuego y Penon.</p>
+          <p className="cp-fuentes">27 capas en el mapa de Penon, agrupadas acá en seis, sobre la isla real. Los focos y los rayos del dibujo son ilustrativos. Fuentes: IGN, IDE Tierra del Fuego y Penon.</p>
         </figure>
       </div>
     </div>

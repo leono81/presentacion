@@ -50,9 +50,10 @@ export default function Penon() {
               Viento y <span className="text-sky-accent">peligro de incendio</span>
             </h3>
             <p className="text-slate-text text-sm max-w-2xl mx-auto">
-              Penon usa dos fuentes y siempre dice cuál es cuál. El viento del mapa viene de un modelo
-              meteorológico (Open-Meteo) y se rotula como modelo. El peligro de incendio se calcula con
-              observaciones oficiales del Servicio Meteorológico Nacional.
+              Los avisos meteorológicos son los oficiales del Servicio Meteorológico Nacional, y el índice
+              de peligro FWI se calcula con las observaciones del SMN en Río Grande y Ushuaia y con la carga
+              de la brigada en Tolhuin. El viento y la temperatura del mapa vienen de un modelo (Open-Meteo),
+              y el mapa lo rotula como modelo.
             </p>
           </div>
 
@@ -84,8 +85,8 @@ export default function Penon() {
                 </div>
                 <h4 className="font-display font-700 text-base mb-2">Calcular riesgo de incendio</h4>
                 <p className="text-xs text-slate-text leading-relaxed">
-                  El índice FWI se calcula cada hora en tres zonas de la provincia, con observaciones del SMN
-                  y los partes de guardia de las brigadas. Es el estándar canadiense que usan Canadá, Australia
+                  El índice FWI se calcula en tres zonas de la provincia: con la observación de las 12:00 del SMN
+                  en Río Grande y Ushuaia, y con la que carga la brigada en Tolhuin. Es el estándar canadiense que usan Canadá, Australia
                   y la Unión Europea para medir el peligro de incendio forestal.
                 </p>
               </div>
@@ -93,7 +94,7 @@ export default function Penon() {
           </div>
 
           <p className="text-center text-[10px] text-slate-text/40 font-mono">
-            Viento: Open-Meteo (modelo) · FWI: observaciones del SMN, cada hora de 12 a 22 h
+            Avisos y observaciones: SMN · Viento y temperatura: Open-Meteo (modelo)
           </p>
         </motion.div>
 

@@ -165,12 +165,12 @@ export default function SignalRace() {
       <div className="mt-3 flex items-center gap-3 px-3 py-2 rounded-lg border border-dashed border-amber-400/20 bg-amber-400/[0.03]">
         <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0" />
         <span className="font-mono text-[9px] text-slate-text/70 leading-relaxed">
-          <span className="text-amber-300/90">Respaldo: NASA FIRMS</span>, cada 30 min. Aporta MODIS y cubre si NOAA falla; en Sudamérica tarda hasta 3 horas.
+          <span className="text-amber-300/90">Respaldo: NASA FIRMS</span>, cada 30 min. El mismo foco llega por ahí entre 45 min y 1 h más tarde (medido en campo). Aporta MODIS y cubre si NOAA falla.
         </span>
       </div>
       <p className="font-mono text-[8px] text-slate-text/30 text-center mt-3 leading-relaxed">
-        Ilustrativo. Publicación de NOAA medida por Penon en 14 gránulos (agosto 2026).
-        La demora total hasta la alerta depende de cada pasada.
+        Ilustrativo. Publicación de NOAA medida en 14 gránulos (agosto 2026); ventaja sobre FIRMS
+        medida en campo. La demora total hasta la alerta depende de cada pasada.
       </p>
     </div>
   )

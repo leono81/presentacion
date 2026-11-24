@@ -231,10 +231,32 @@
   .cp-proximas ul {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  /* en celular la leyenda va pegada con la isla: sin las etiquetas, para que entre en pantalla */
+  .cp-leyenda .cp-chips {
+    display: none;
+  }
   .cp-proximas {
     grid-template-columns: minmax(0, 1fr);
   }
   .cp-r-foco {
     font-size: 9px;
   }
+}
+
+/* las capas reales del mapa de Penon que agrupa cada hoja, con su nombre en el producto */
+.cp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.cp-chips span {
+  font: 500 9.5px 'JetBrains Mono', monospace;
+  letter-spacing: 0.02em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: color-mix(in srgb, var(--lavado) 70%, white);
+  background: color-mix(in srgb, var(--lavado) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lavado) 28%, transparent);
+  white-space: nowrap;
 }
