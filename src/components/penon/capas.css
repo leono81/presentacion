@@ -1,0 +1,240 @@
+/* Capas.jsx: la lámina de capas, en oscuro. La pista da el recorrido del scroll y el panel se queda
+   pegado debajo del nav mientras tanto. Sin JS o con movimiento reducido no hay recorrido: el panel
+   va en su lugar, con la pila armada. */
+.cp-pista {
+  --cp-papel: #0b1120;
+  --cp-mar: #0d1830;
+  --cp-costa: #2b4a6f;
+  --cp-tierra: #18233a;
+  --cp-tinta: #cbd5e1;
+  --cp-tinta-suave: #475569;
+  --cp-haz: #38bdf8;
+  --cp-acento: #ef4444;
+  --cp-rotulado: #f97316;
+  --cp-gris: #94a3b8;
+  --cp-blanco: #f8fafc;
+  --cp-ambar: #f59e0b;
+  margin-top: 6rem;
+}
+.cp-pista.cp-con-scroll {
+  height: 330vh;
+}
+.cp-panel {
+  padding-top: clamp(16px, 3vh, 32px);
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(32px, 4vw, 64px);
+  align-content: start;
+  align-items: center;
+}
+.cp-con-scroll .cp-panel {
+  position: sticky;
+  top: 64px;
+}
+.cp-texto p {
+  margin-top: 14px;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 48ch;
+  color: var(--cp-gris);
+}
+.cp-principio {
+  margin-top: 22px;
+  font-family: 'Archivo', sans-serif;
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(19px, 1.6vw, 24px);
+  line-height: 1.25;
+  max-width: 18em;
+  color: var(--cp-blanco);
+  text-wrap: balance;
+}
+.cp-texto .cp-estado {
+  margin-top: 18px;
+  font-size: 13px;
+}
+
+.cp-pila {
+  position: relative;
+  margin-inline: auto;
+}
+.cp-pila svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.cp-hoja,
+.cp-cielo {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* cada hoja está a su altura en la pila (--z) y, antes de caer, CAIDA más arriba (--caida);
+   --t va de 0 (arriba) a 1 (apoyada). Sin JS, --t es 1: la pila armada. */
+.cp-hoja {
+  transform: translateY(calc((var(--z) + var(--caida) * (1 - var(--t, 1))) * -1%));
+  opacity: var(--o, 1);
+  will-change: transform;
+}
+/* el lavado de cada hoja: más cargado mientras cae, más leve ya apoyada, para que la pila deje ver
+   lo de abajo y en el borde se lean las bandas de color */
+.cp-fondo {
+  fill: var(--lavado);
+  fill-opacity: calc(var(--cuanto) * (0.55 + 0.45 * (1 - var(--t, 1))));
+}
+.cp-foco {
+  transition: opacity 0.4s ease-out;
+}
+.cp-paso {
+  transition: opacity 0.6s ease-out;
+}
+.cp-con-scroll .cp-traza:not([data-ve]) {
+  opacity: 0;
+}
+.cp-con-scroll .cp-foco:not([data-visto]) {
+  opacity: 0;
+}
+.cp-r-foco {
+  position: absolute;
+  font: 500 11px 'JetBrains Mono', monospace;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  transform: translateY(-50%);
+  text-shadow: 0 0 4px var(--cp-papel), 0 0 2px var(--cp-papel), 0 0 1px var(--cp-papel);
+}
+.cp-r-alerta {
+  color: var(--cp-acento);
+}
+.cp-r-rotulado {
+  color: var(--cp-rotulado);
+}
+.cp-a-izquierda {
+  transform: translate(-100%, -50%);
+}
+
+/* la leyenda, abajo de la pila: cada capa aparece cuando empieza a caer */
+.cp-leyenda {
+  list-style: none;
+  margin-top: 12px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px clamp(16px, 2vw, 28px);
+}
+.cp-leyenda li {
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 0.6, 0.2, 1),
+    transform 0.9s cubic-bezier(0.16, 0.6, 0.2, 1);
+}
+/* la muestra del color de cada capa: una banda con su filete, como en la leyenda de una carta */
+.cp-leyenda li::before {
+  content: '';
+  display: block;
+  height: 5px;
+  margin-bottom: 8px;
+  background: color-mix(in srgb, var(--lavado) 70%, var(--cp-papel));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lavado) 50%, transparent);
+}
+.cp-con-scroll .cp-leyenda li:not([data-vista]) {
+  opacity: 0;
+  transform: translateY(-7px);
+}
+.cp-nombre {
+  display: block;
+  font: 500 10px 'JetBrains Mono', monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cp-blanco);
+}
+.cp-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--cp-gris);
+}
+
+/* lo que está en desarrollo: punteado, aparte de la pila; aparece cuando la pila está armada */
+.cp-proximas {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed color-mix(in srgb, var(--cp-ambar) 40%, transparent);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 24px;
+  align-items: baseline;
+  transition: opacity 0.6s ease-out;
+}
+.cp-proximas ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px clamp(16px, 2vw, 28px);
+}
+.cp-proximas li .cp-nombre {
+  color: color-mix(in srgb, var(--cp-ambar) 85%, white);
+}
+.cp-con-scroll:not([data-armada]) .cp-proximas {
+  opacity: 0;
+}
+.cp-fuentes {
+  margin-top: 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--cp-gris) 55%, transparent);
+  max-width: 72ch;
+}
+
+/* pantallas bajas: el texto entra si se achica un poco */
+@media (min-width: 901px) and (max-height: 820px) {
+  .cp-texto p {
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  .cp-principio {
+    font-size: 19px;
+    margin-top: 14px;
+  }
+  .cp-desc {
+    font-size: 11.5px;
+  }
+}
+
+/* angosto: el texto va antes, en su lugar; lo que queda pegado es la pila con la leyenda */
+@media (max-width: 900px) {
+  .cp-panel,
+  .cp-con-scroll .cp-panel {
+    position: static;
+    display: block;
+  }
+  .cp-texto {
+    margin-bottom: 24px;
+  }
+  .cp-con-scroll .cp-lamina {
+    position: sticky;
+    top: 64px;
+    padding: 12px 0 8px;
+    background: var(--cp-papel);
+  }
+  .cp-pista.cp-con-scroll {
+    height: auto;
+  }
+  /* el recorrido del scroll, acá, lo da la lámina pegada dentro del panel */
+  .cp-con-scroll .cp-panel::after {
+    content: '';
+    display: block;
+    height: 230vh;
+  }
+  .cp-leyenda,
+  .cp-proximas ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cp-proximas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cp-r-foco {
+    font-size: 9px;
+  }
+}

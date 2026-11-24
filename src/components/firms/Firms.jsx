@@ -22,9 +22,9 @@ const steps = [
     id: 0,
     tag: '01',
     label: 'LA CONSTELACIÓN',
-    title: 'Siete pares de ojos sobre el hemisferio',
-    body: 'Cinco satélites polares — Terra y Aqua (NASA), Suomi NPP, NOAA-20 y NOAA-21 (NASA/NOAA) — recorren el planeta de polo a polo a entre 705 y 833 km de altura, 14 órbitas por día. Los geoestacionarios GOES-19 (Este) y GOES-18 (Oeste) observan América completa cada 10 minutos desde 35.786 km.',
-    detail: 'Terra y Aqua, en órbita desde 1999 y 2002, entran en fase de retiro entre 2026 y 2027. La continuidad está asegurada: los tres satélites VIIRS siguen plenamente operativos y NOAA-22 (JPSS-4) tiene lanzamiento previsto para 2027.',
+    title: 'Seis pares de ojos sobre el hemisferio',
+    body: 'Cuatro satélites polares — Terra y Aqua (NASA), NOAA-20 y NOAA-21 (NASA/NOAA) — recorren el planeta de polo a polo a entre 705 y 833 km de altura, 14 órbitas por día. Los geoestacionarios GOES-19 (Este) y GOES-18 (Oeste) observan América completa cada 10 minutos desde 35.786 km.',
+    detail: 'Terra y Aqua, en órbita desde 1999 y 2002, entran en fase de retiro entre 2026 y 2027. Suomi NPP, el primer VIIRS, dejó de aportar datos en noviembre de 2026: NOAA-20 y NOAA-21 siguen plenamente operativos y NOAA-22 (JPSS-4) tiene lanzamiento previsto para 2027.',
   },
   {
     id: 1,
@@ -55,7 +55,7 @@ const steps = [
     tag: '05',
     label: 'LA SEÑAL',
     title: 'De la órbita a la pantalla',
-    body: 'La observación baja a estaciones terrenas, NASA la procesa en su sistema LANCE y la publica en la API de FIRMS en menos de 3 horas (NRT, cobertura global). Penon consulta esa API, descarta detecciones industriales y petroleras, la cruza con meteorología y emite la alerta por Telegram.',
+    body: 'La observación baja a estaciones terrenas, NASA la procesa en su sistema LANCE y la publica en la API de FIRMS en menos de 3 horas (NRT, cobertura global). Penon la consulta cada 30 minutos, rotula las detecciones en zonas industriales y petroleras, las cruza con el peligro del día y emite la alerta por Telegram.',
     detail: 'Los datos GOES llegan a FIRMS unos 20-30 minutos después de cada observación. Parques Nacionales usa estas mismas detecciones VIIRS en Argentina: es el estándar global, y también el local.',
   },
 ]
@@ -70,8 +70,8 @@ const stats = [
 const roster = [
   { name: 'Terra', org: 'NASA', sensor: 'MODIS · 1 km', orbit: '705 km · 99 min', since: 'En órbita desde 1999', status: 'Fase final', statusColor: 'text-amber-400 border-amber-400/30 bg-amber-400/10', note: 'Retiro previsto 2027' },
   { name: 'Aqua', org: 'NASA', sensor: 'MODIS · 1 km', orbit: '705 km · 98,8 min', since: 'En órbita desde 2002', status: 'Fase final', statusColor: 'text-amber-400 border-amber-400/30 bg-amber-400/10', note: 'Retiro previsto 2027' },
-  { name: 'Suomi NPP', org: 'NASA / NOAA', sensor: 'VIIRS · 375 m', orbit: '824 km · 101 min', since: 'En órbita desde 2011', status: 'Operativo', statusColor: 'text-emerald-accent border-emerald-accent/30 bg-emerald-accent/10', note: 'Cruce ecuatorial ~13:30' },
-  { name: 'NOAA-20', org: 'JPSS-1', sensor: 'VIIRS · 375 m', orbit: '833 km · 14 órb/día', since: 'En órbita desde 2017', status: 'Operativo', statusColor: 'text-emerald-accent border-emerald-accent/30 bg-emerald-accent/10', note: '50 min detrás de Suomi NPP' },
+  { name: 'Suomi NPP', org: 'NASA / NOAA', sensor: 'VIIRS · 375 m', orbit: '824 km · 101 min', since: 'En órbita desde 2011', status: 'Fuera de servicio', statusColor: 'text-slate-text border-slate-text/30 bg-slate-text/10', note: 'Sin datos desde nov 2026' },
+  { name: 'NOAA-20', org: 'JPSS-1', sensor: 'VIIRS · 375 m', orbit: '833 km · 14 órb/día', since: 'En órbita desde 2017', status: 'Operativo', statusColor: 'text-emerald-accent border-emerald-accent/30 bg-emerald-accent/10', note: 'Cruce ecuatorial ~13:30' },
   { name: 'NOAA-21', org: 'JPSS-2', sensor: 'VIIRS · 375 m', orbit: '833 km · 14 órb/día', since: 'En órbita desde 2022', status: 'Operativo', statusColor: 'text-emerald-accent border-emerald-accent/30 bg-emerald-accent/10', note: 'En FIRMS desde ene 2024' },
   { name: 'GOES-19', org: 'NOAA · GOES-Este', sensor: 'ABI FDC · 2 km', orbit: 'Geoestacionario · 75,2°O', since: '35.786 km de altura', status: 'Operativo', statusColor: 'text-emerald-accent border-emerald-accent/30 bg-emerald-accent/10', note: 'América cada 10 min · desde abr 2025' },
   { name: 'GOES-18', org: 'NOAA · GOES-Oeste', sensor: 'ABI FDC · 2 km', orbit: 'Geoestacionario · 137°O', since: '35.786 km de altura', status: 'Operativo', statusColor: 'text-emerald-accent border-emerald-accent/30 bg-emerald-accent/10', note: 'América cada 10 min' },
@@ -151,7 +151,7 @@ export default function Firms() {
               </h2>
               <p className="text-slate-text text-sm mt-2 max-w-lg">
                 NASA FIRMS vigila incendios activos en todo el planeta con una constelación
-                de 7 satélites. Así llega la señal desde la órbita hasta tu pantalla.
+                de satélites. Así llega la señal desde la órbita hasta tu pantalla.
               </p>
             </div>
             <div className="hidden md:flex items-center gap-4 pb-1">

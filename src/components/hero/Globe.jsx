@@ -298,10 +298,9 @@ function Scene() {
         <Earth />
       </Suspense>
 
-      {/* 5 real FIRMS satellites — polar orbits at different longitudes */}
+      {/* 4 real FIRMS polar satellites — polar orbits at different longitudes */}
       <PolarOrbit color="#38BDF8" radius={2.35} speed={0.28} longitudeOffset={-68} name="Terra" />
       <PolarOrbit color="#06B6D4" radius={2.42} speed={0.32} longitudeOffset={-30} name="Aqua" />
-      <PolarOrbit color="#10B981" radius={2.50} speed={0.36} longitudeOffset={10} name="Suomi NPP" />
       <PolarOrbit color="#8B5CF6" radius={2.57} speed={0.40} longitudeOffset={50} name="NOAA-20" />
       <PolarOrbit color="#A78BFA" radius={2.64} speed={0.44} longitudeOffset={90} name="NOAA-21" />
 

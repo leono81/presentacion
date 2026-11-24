@@ -38,8 +38,7 @@ function latLonToXYZ(lat, lon, radius) {
 const SATS = {
   'Terra': { sensor: 'MODIS · 1 km', orbit: '705 km · 99 min', extra: 'NASA · desde 1999 · retiro previsto 2027', color: '#38BDF8' },
   'Aqua': { sensor: 'MODIS · 1 km', orbit: '705 km · 98,8 min', extra: 'NASA · desde 2002 · retiro previsto 2027', color: '#38BDF8' },
-  'Suomi NPP': { sensor: 'VIIRS · 375 m', orbit: '824 km · 101 min', extra: 'NASA/NOAA · desde 2011 · cruce ~13:30', color: '#8B5CF6' },
-  'NOAA-20': { sensor: 'VIIRS · 375 m', orbit: '833 km · 14 órb/día', extra: 'JPSS-1 · desde 2017 · 50 min tras Suomi NPP', color: '#8B5CF6' },
+  'NOAA-20': { sensor: 'VIIRS · 375 m', orbit: '833 km · 14 órb/día', extra: 'JPSS-1 · desde 2017 · cruce ~13:30', color: '#8B5CF6' },
   'NOAA-21': { sensor: 'VIIRS · 375 m', orbit: '833 km · 14 órb/día', extra: 'JPSS-2 · en FIRMS desde ene 2024', color: '#A78BFA' },
   'GOES-19': { sensor: 'ABI FDC · 2 km', orbit: 'Geoestacionario · 75,2°O', extra: 'GOES-Este · América cada 10 min', color: '#FBBF24' },
   'GOES-18': { sensor: 'ABI FDC · 2 km', orbit: 'Geoestacionario · 137°O', extra: 'GOES-Oeste · América cada 10 min', color: '#FBBF24' },
@@ -197,7 +196,6 @@ function Scene({ selected, onSelect }) {
 
       <PolarSat name="Terra" radius={2.0} speed={0.35} lonOffset={-65} phase={0} selected={selected} onSelect={onSelect} />
       <PolarSat name="Aqua" radius={2.05} speed={0.38} lonOffset={-25} phase={2} selected={selected} onSelect={onSelect} />
-      <PolarSat name="Suomi NPP" radius={2.15} speed={0.42} lonOffset={15} phase={4} selected={selected} onSelect={onSelect} />
       <PolarSat name="NOAA-20" radius={2.15} speed={0.42} lonOffset={15} phase={4.8} selected={selected} onSelect={onSelect} />
       <PolarSat name="NOAA-21" radius={2.22} speed={0.45} lonOffset={55} phase={1} selected={selected} onSelect={onSelect} />
     </>
@@ -205,7 +203,7 @@ function Scene({ selected, onSelect }) {
 }
 
 export default function ConstellationVis3D() {
-  const [selected, setSelected] = useState('Suomi NPP')
+  const [selected, setSelected] = useState('NOAA-21')
   const data = SATS[selected]
 
   return (
