@@ -15,9 +15,9 @@ const leyenda = [
   { nombre: 'Capa territorial', desc: 'La isla, sus lagos y el bosque nativo.', color: '#64748B', cuanto: 1 },
   { nombre: 'Capa de peligro FWI', desc: 'El peligro de incendio del día en tres zonas, con observaciones oficiales del SMN.', color: '#10B981', cuanto: 0.22 },
   { nombre: 'Capa industrial y petrolera', desc: 'Lo que cae en un parque industrial o un yacimiento se rotula: no se descarta.', color: '#F97316', cuanto: 0.16 },
-  { nombre: 'Capa de rayos', desc: 'Los rayos que registra el satélite GOES-19.', color: '#A78BFA', cuanto: 0.2 },
+  { nombre: 'Capa de rayos', desc: 'Las descargas que mide el GLM del GOES-19, revisadas cada 10 minutos.', color: '#A78BFA', cuanto: 0.2 },
   { nombre: 'Capa de contexto', desc: 'Viento, áreas protegidas y poblados: lo que hay alrededor de cada foco.', color: '#38BDF8', cuanto: 0.14 },
-  { nombre: 'Capa satelital', desc: 'Focos de calor de VIIRS (NOAA-20 y NOAA-21) y MODIS, vía NASA FIRMS. Lo detectado llega al mapa en un máximo de 30 minutos después de publicado.', color: '#EF4444', cuanto: 1 },
+  { nombre: 'Capa satelital', desc: 'Focos de calor de NOAA-20 y NOAA-21, directo del bucket público de NOAA cada 10 minutos, y de MODIS vía NASA FIRMS.', color: '#EF4444', cuanto: 1 },
 ]
 
 const proximas = [

@@ -55,8 +55,8 @@ const steps = [
     tag: '05',
     label: 'LA SEÑAL',
     title: 'De la órbita a la pantalla',
-    body: 'La observación baja a estaciones terrenas, NASA la procesa en su sistema LANCE y la publica en la API de FIRMS en menos de 3 horas (NRT, cobertura global). Penon la consulta cada 30 minutos, rotula las detecciones en zonas industriales y petroleras, las cruza con el peligro del día y emite la alerta por Telegram.',
-    detail: 'Los datos GOES llegan a FIRMS unos 20-30 minutos después de cada observación. Parques Nacionales usa estas mismas detecciones VIIRS en Argentina: es el estándar global, y también el local.',
+    body: 'Para NOAA-20 y NOAA-21, Penon no espera a FIRMS: toma los focos directo del bucket público de NOAA, que los publica minutos después de la pasada (medimos entre 15 y 44 min), y lo revisa cada 10 minutos. Rotula las detecciones en zonas industriales y petroleras, las cruza con el peligro del día y emite la alerta por Telegram.',
+    detail: 'NASA FIRMS queda de respaldo, consultado cada 30 minutos: aporta MODIS y cubre si NOAA falla, aunque en Sudamérica tarda hasta 3 horas. Parques Nacionales usa estas mismas detecciones VIIRS en Argentina: es el estándar global, y también el local.',
   },
 ]
 
@@ -64,7 +64,7 @@ const stats = [
   { num: 375, suffix: 'm', label: 'Resolución VIIRS', sub: 'por píxel', color: 'text-sky-accent' },
   { num: 3060, suffix: '', label: 'Km de barrido', sub: 'por pasada VIIRS', color: 'text-violet-accent' },
   { num: 10, suffix: ' min', label: 'Cadencia GOES-19', sub: 'América completa', color: 'text-amber-400' },
-  { num: 3, prefix: '< ', suffix: 'hs', label: 'Latencia NRT', sub: 'satélite → API', color: 'text-emerald-accent' },
+  { num: 10, suffix: ' min', label: 'Revisión de NOAA', sub: 'directo, sin esperar a FIRMS', color: 'text-emerald-accent' },
 ]
 
 const roster = [
@@ -81,7 +81,7 @@ const roster = [
 const limits = [
   { icon: CloudOff, title: 'Nubes y dosel', desc: 'La nubosidad densa o el dosel cerrado del bosque pueden ocultar un foco por completo.' },
   { icon: Crosshair, title: 'Píxel ≠ perímetro', desc: 'El punto indica fuego activo dentro del píxel — no el tamaño ni el borde del incendio.' },
-  { icon: Timer, title: 'Latencia NRT', desc: 'Fuera de Norteamérica los datos polares tardan hasta 3 horas. GOES compensa con cadencia de 10 minutos.' },
+  { icon: Timer, title: 'Latencia', desc: 'Por FIRMS, en Sudamérica los datos polares tardan hasta 3 horas. Por eso Penon toma NOAA-20 y NOAA-21 directo de NOAA.' },
   { icon: ThermometerSnowflake, title: 'Fuegos pequeños o fríos', desc: 'Por debajo del umbral térmico no hay detección. Que no haya puntos no garantiza que no haya fuego.' },
 ]
 

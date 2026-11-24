@@ -3,6 +3,7 @@ import { useInView } from 'react-intersection-observer'
 import { fadeInUp } from '../../lib/animations'
 import FwiDiagram from './FwiDiagram'
 import Capas from './Capas'
+import Rayos from './Rayos'
 import { Wind, Gauge } from 'lucide-react'
 
 export default function Penon() {
@@ -247,6 +248,9 @@ export default function Penon() {
             </span>
           </div>
         </motion.div>
+
+        {/* ── Rayos: de dónde salen, cómo se procesan, cómo se muestran ── */}
+        <Rayos />
 
         {/* ── Todas las capas, al mismo tiempo ── */}
         <Capas />

@@ -1,38 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import { MapPin, Send } from 'lucide-react'
 
 /*
- * La carrera de la señal: cronómetro time-lapse + pipeline que estampa
- * tiempos por etapa, terminando en la alerta de Telegram.
- * Ejemplo ilustrativo de una pasada NRT típica (latencia real: < 3 hs
- * para datos polares fuera de Norteamérica).
+ * El camino de la señal: el pipeline estampa cada etapa y termina en la alerta de Telegram.
+ * Para NOAA-20/21 Penon no espera a FIRMS: lee el bucket público de NOAA. Tiempos según la
+ * sesión de penonInsight (24/11/2026): NOAA publica entre 15 y 44 min después de la pasada
+ * (medido en 14 gránulos); la demora de punta a punta no está medida y no se publica.
  */
 
 const NODES = [
-  { name: 'Detección en órbita', sub: 'VIIRS · banda I-4', stamp: 'T+0', color: '#38BDF8', at: 0 },
-  { name: 'Estación terrena + LANCE', sub: 'downlink y procesamiento NASA', stamp: 'minutos', color: '#8B5CF6', at: 18 * 60 },
-  { name: 'API pública de FIRMS', sub: 'NRT global · < 3 hs', stamp: '2 h 47 m', color: '#F59E0B', at: 2 * 3600 + 47 * 60 + 13 },
-  { name: 'Penon Monitor', sub: 'filtros + FWI + confianza', stamp: '+ 8 s', color: '#10B981', at: 2 * 3600 + 47 * 60 + 21 },
+  { name: 'Detección en órbita', sub: 'VIIRS · NOAA-20 y NOAA-21', stamp: 'pasada', color: '#38BDF8' },
+  { name: 'Bucket público de NOAA', sub: 'publica minutos después de la pasada', stamp: '15–44 min · medido', color: '#8B5CF6' },
+  { name: 'Penon Monitor', sub: 'lo revisa cada 10 min · rótulos + FWI', stamp: 'cada 10 min', color: '#10B981' },
 ]
 
-const TELEGRAM_AT = 2 * 3600 + 47 * 60 + 22
 const STEP_MS = 1700
 const PAUSE_MS = 4000
 
-function fmt(t) {
-  const h = String(Math.floor(t / 3600)).padStart(2, '0')
-  const m = String(Math.floor((t % 3600) / 60)).padStart(2, '0')
-  const s = String(Math.floor(t % 60)).padStart(2, '0')
-  return `${h}:${m}:${s}`
-}
-
 export default function SignalRace() {
   const [ref, inView] = useInView({ threshold: 0.3 })
-  const [phase, setPhase] = useState(-1) // -1 reposo · 0..3 nodos · 4 telegram · 5 pausa
-  const [clock, setClock] = useState(0)
-  const rafRef = useRef(null)
+  const [phase, setPhase] = useState(-1) // -1 reposo · 0..2 nodos · 3 telegram · 4 pausa
 
   // Avance de fases — si sale de vista se pausa donde está
   useEffect(() => {
@@ -42,41 +31,19 @@ export default function SignalRace() {
       return () => clearTimeout(t)
     }
     const t = setTimeout(
-      () => setPhase((p) => (p >= 5 ? 0 : p + 1)),
-      phase === 5 ? PAUSE_MS : STEP_MS
+      () => setPhase((p) => (p >= 4 ? 0 : p + 1)),
+      phase === 4 ? PAUSE_MS : STEP_MS
     )
     return () => clearTimeout(t)
   }, [phase, inView])
 
-  // Cronómetro time-lapse: interpola hacia el tiempo de la fase actual
-  useEffect(() => {
-    if (phase < 0) return
-    const target = phase >= 4 ? TELEGRAM_AT : NODES[Math.min(phase, 3)].at
-    const from = clock
-    if (from === target) return
-    const start = performance.now()
-    const dur = STEP_MS * 0.7
-    const step = (now) => {
-      const p = Math.min((now - start) / dur, 1)
-      const eased = 1 - Math.pow(1 - p, 3)
-      setClock(from + (target - from) * eased)
-      if (p < 1) rafRef.current = requestAnimationFrame(step)
-    }
-    rafRef.current = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(rafRef.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase])
-
-  const showTelegram = phase >= 4
+  const showTelegram = phase >= 3
 
   return (
     <div ref={ref} className="w-full max-w-md mx-auto">
-      {/* Cronómetro */}
       <div className="flex items-center justify-between mb-3 px-1">
-        <span className="font-mono text-[10px] text-slate-text/50 uppercase tracking-widest">Tiempo desde la observación</span>
-        <span className="font-mono text-lg font-bold text-white-text tabular-nums">
-          T+<span className={phase >= 0 && phase < 5 ? 'text-amber-400' : 'text-emerald-accent'}>{fmt(clock)}</span>
-        </span>
+        <span className="font-mono text-[10px] text-slate-text/50 uppercase tracking-widest">El camino del dato</span>
+        <span className="font-mono text-[10px] text-emerald-accent/80 uppercase tracking-widest">Directo de NOAA</span>
       </div>
 
       <div className="relative">
@@ -195,9 +162,15 @@ export default function SignalRace() {
         </div>
       </div>
 
+      <div className="mt-3 flex items-center gap-3 px-3 py-2 rounded-lg border border-dashed border-amber-400/20 bg-amber-400/[0.03]">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/70 shrink-0" />
+        <span className="font-mono text-[9px] text-slate-text/70 leading-relaxed">
+          <span className="text-amber-300/90">Respaldo: NASA FIRMS</span>, cada 30 min. Aporta MODIS y cubre si NOAA falla; en Sudamérica tarda hasta 3 horas.
+        </span>
+      </div>
       <p className="font-mono text-[8px] text-slate-text/30 text-center mt-3 leading-relaxed">
-        Ejemplo ilustrativo de una pasada NRT típica. En Norteamérica existe URT (&lt; 60 s);
-        para Sudamérica el estándar global es NRT: hasta 3 horas.
+        Ilustrativo. Publicación de NOAA medida por Penon en 14 gránulos (agosto 2026).
+        La demora total hasta la alerta depende de cada pasada.
       </p>
     </div>
   )
