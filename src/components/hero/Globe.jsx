@@ -328,6 +328,9 @@ export default function GlobeScene() {
           gl.setClearColor(0x000000, 0)
         }}
         dpr={[1, 2]}
+        // medir sin transform: el Hero entra con scale 0.9 → 1 y getBoundingClientRect tomaba el tamaño
+        // achicado; el canvas quedaba al 90 % y corrido hasta el primer scroll, que vuelve a medir
+        resize={{ offsetSize: true }}
       >
         <Scene />
       </Canvas>
