@@ -62,6 +62,28 @@ export default function Brigadistas() {
   const [cerca, setCerca] = useState(false)
   const [pista, setPista] = useState(null)
   const [paso, setPaso] = useState(REDUCIDO ? 2 : -1)
+  // con el mouse sobre la explicación (el texto de arriba o los pasos) la película se queda quieta
+  const visibleRef = useRef(false)
+  const encimaRef = useRef(false)
+  const [enPausa, setEnPausa] = useState(false)
+  const seguir = () => {
+    const v = videoRef.current
+    if (!v || REDUCIDO) return
+    if (visibleRef.current && !encimaRef.current) v.play().catch(() => {})
+    else v.pause()
+  }
+  const sobreExplicacion = {
+    onMouseEnter: () => {
+      encimaRef.current = true
+      setEnPausa(!REDUCIDO)
+      seguir()
+    },
+    onMouseLeave: () => {
+      encimaRef.current = false
+      setEnPausa(false)
+      seguir()
+    },
+  }
   const [angosto, setAngosto] = useState(() => typeof matchMedia !== 'undefined' && matchMedia('(max-width: 900px)').matches)
 
   useEffect(() => {
@@ -98,7 +120,8 @@ export default function Brigadistas() {
     if (!v || !el || !cerca || REDUCIDO) return
     const io = new IntersectionObserver(
       ([e]) => {
-        if (e.isIntersecting) v.play().catch(() => {})
+        visibleRef.current = e.isIntersecting
+        if (e.isIntersecting && !encimaRef.current) v.play().catch(() => {})
         else v.pause()
       },
       { threshold: 0.3 },
@@ -245,7 +268,7 @@ export default function Brigadistas() {
             Cada brigadista en el mapa, <span className="text-ember">aunque no haya señal</span>
           </h3>
         </div>
-        <div className="br-texto">
+        <div className="br-texto" {...sobreExplicacion}>
           <p>
             Cada brigadista lleva una radio Meshtastic que manda su posición y los datos de su equipo y retransmite los de los demás: una red en
             malla que se arma en el terreno, hasta el jefe de brigada. Él los sube a Penon por Starlink.
@@ -293,6 +316,10 @@ export default function Brigadistas() {
               <span>Pruebas de campo próximamente</span>
             </div>
             <div className="br-sim">Simulación · relieve real: Copernicus GLO-30</div>
+            <div className="br-pausa" data-visible={enPausa ? '' : undefined}>
+              <i />
+              En pausa
+            </div>
             {!angosto && <Panel panelRef={panelRef} />}
           </div>
         </figure>
@@ -303,7 +330,7 @@ export default function Brigadistas() {
           </div>
         )}
 
-        <ol className="br-pasos">
+        <ol className="br-pasos" {...sobreExplicacion}>
           {pasos.map((p, i) => (
             <li key={p.titulo} data-activo={paso === i ? '' : undefined}>
               <span className="br-num">0{i + 1}</span>

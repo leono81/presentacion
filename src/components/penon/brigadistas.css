@@ -271,6 +271,34 @@
   background: rgb(245 158 11 / 0.4);
 }
 
+/* en pausa mientras el mouse está sobre la explicación */
+.br-pausa {
+  position: absolute;
+  top: clamp(12px, 2.4%, 24px);
+  right: clamp(12px, 1.6%, 28px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--br-blanco);
+  background: rgb(5 11 24 / 0.82);
+  border: 1px solid rgb(248 250 252 / 0.3);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.br-pausa[data-visible] {
+  opacity: 1;
+}
+.br-pausa i {
+  width: 8px;
+  height: 9px;
+  border-inline: 3px solid var(--br-blanco);
+}
+
 /* el panel: lo que recibe el jefe de brigada, a la derecha del cuadro */
 .br-panel {
   position: absolute;
@@ -543,6 +571,9 @@
   }
   .br-nombre {
     gap: 6px;
+  }
+  .br-fila-cab {
+    white-space: normal;
   }
   .br-pasos {
     grid-template-columns: minmax(0, 1fr);
