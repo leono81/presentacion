@@ -14,7 +14,13 @@ function HudClock() {
   return <span className="tabular-nums">{hh}:{mm}:{ss} UTC</span>
 }
 
-/** Mensajes sincronizados al video (0 a 1 de su duración) — un solo arco: lugar → fuente → lugar → herramienta */
+/* El video (Veo, Flow) dura 8 s y corre una vez a velocidad normal: desacelerarlo lo entrecorta.
+ * Los textos siguen su propia línea de tiempo, más larga: el wordmark aparece cuando el video
+ * termina y el último cuadro sigue acercándose despacio, para que no se note el corte. */
+const LINEA = 12 // s de la línea de tiempo de los textos
+const FIN_VIDEO = 8 / LINEA
+
+/** Mensajes sincronizados a la línea de tiempo (0 a 1) — un solo arco: lugar → fuente → lugar → herramienta */
 const messages = [
   {
     range: [0.02, 0.22],
@@ -160,8 +166,9 @@ function StageDot({ progress, start, end, label, isDestination }) {
 export default function OrbitScrub() {
   const rootRef = useRef(null)
   const videoRef = useRef(null)
-  // Progreso del video (0 a 1): mueve los mensajes, el wordmark y el rail
+  // Progreso de la línea de tiempo (0 a 1): mueve los mensajes, el wordmark, el rail y el acercamiento final
   const progress = useMotionValue(0)
+  const acercar = useTransform(progress, [FIN_VIDEO, 1], [1, 1.05])
 
   // Arranca solo cuando la sección entra en pantalla; corre una vez y queda en el wordmark
   useEffect(() => {
@@ -169,16 +176,23 @@ export default function OrbitScrub() {
     const video = videoRef.current
     if (!el || !video) return
     let raf = 0
-    const tick = () => {
-      if (video.duration) progress.set(video.currentTime / video.duration)
-      if (!video.paused && !video.ended) raf = requestAnimationFrame(tick)
+    let t0 = 0
+    const tick = (ahora) => {
+      const v = Math.min(1, (ahora - t0) / (LINEA * 1000))
+      progress.set(v)
+      if (v < 1) raf = requestAnimationFrame(tick)
     }
-    const onPlay = () => { raf = requestAnimationFrame(tick) }
-    const onEnded = () => progress.set(1)
-    video.addEventListener('play', onPlay)
-    video.addEventListener('ended', onEnded)
+    // el reloj arranca cuando el video realmente empieza a correr, no cuando se pide
+    const onPlaying = () => {
+      if (t0) return
+      t0 = performance.now()
+      raf = requestAnimationFrame(tick)
+    }
+    video.addEventListener('playing', onPlaying)
+    let pedido = false
     const io = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting || video.currentTime > 0) return
+      if (!e.isIntersecting || pedido) return
+      pedido = true
       // si el navegador no deja reproducir, se ve directo el final
       video.play().catch(() => progress.set(1))
     }, { threshold: 0.6 })
@@ -186,19 +200,19 @@ export default function OrbitScrub() {
     return () => {
       io.disconnect()
       cancelAnimationFrame(raf)
-      video.removeEventListener('play', onPlay)
-      video.removeEventListener('ended', onEnded)
+      video.removeEventListener('playing', onPlaying)
     }
   }, [progress])
 
   return (
     <div ref={rootRef} className="relative h-screen overflow-hidden bg-void motion-reduce:hidden" aria-hidden="true">
-      <video
+      <motion.video
         ref={videoRef}
         src="/media/orbit/orbita.mp4"
         muted
         playsInline
         preload="auto"
+        style={{ scale: acercar }}
         className="absolute inset-0 w-full h-full object-cover"
       />
 
