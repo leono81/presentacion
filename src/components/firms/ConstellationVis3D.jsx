@@ -1,5 +1,5 @@
-import { useRef, useState, useMemo, Suspense, Component } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { useEffect, useRef, useState, useMemo, Suspense, Component } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useTexture, Trail, Html, Stars } from '@react-three/drei'
 import * as THREE from 'three'
 
@@ -48,6 +48,13 @@ function Earth({ children }) {
   const ref = useRef()
   const tex = useTexture('/earth-blue-marble.jpg')
   useFrame((_, dt) => { if (ref.current) ref.current.rotation.y += dt * 0.05 })
+  // la textura suele terminar de cargar con el canvas ya pausado (fuera de pantalla): subirla a la GPU y
+  // compilar los shaders ahora, y no en el primer cuadro al llegar con el scroll (era un tirón de ~150 ms)
+  const { gl, scene, camera } = useThree()
+  useEffect(() => {
+    gl.initTexture(tex)
+    gl.compile(scene, camera)
+  }, [gl, scene, camera, tex])
   return (
     <group ref={ref}>
       <mesh>
@@ -85,8 +92,11 @@ function PolarSat({ name, radius, speed, lonOffset, phase = 0, selected, onSelec
     return new THREE.CatmullRomCurve3(pts, true)
   }, [radius, lonRad])
 
-  useFrame(({ clock }) => {
-    const a = (clock.elapsedTime * speed + phase) % (Math.PI * 2)
+  // ángulo acumulado con delta: al pausar fuera de pantalla el reloj de R3F vuelve a 0 (ver Globe.jsx)
+  const anguloRef = useRef(phase)
+  useFrame((_, dt) => {
+    anguloRef.current = (anguloRef.current + Math.min(dt, 0.1) * speed) % (Math.PI * 2)
+    const a = anguloRef.current
     const y = radius * Math.cos(a)
     const z = radius * Math.sin(a)
     if (ref.current) ref.current.position.set(z * Math.sin(lonRad), y, z * Math.cos(lonRad))
@@ -205,12 +215,21 @@ function Scene({ selected, onSelect }) {
 export default function ConstellationVis3D() {
   const [selected, setSelected] = useState('NOAA-21')
   const data = SATS[selected]
+  // fuera de pantalla no se dibuja (queda montado si FIRMS se dejó en el paso 1)
+  const cajaRef = useRef(null)
+  const [enVista, setEnVista] = useState(true)
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => setEnVista(e.isIntersecting))
+    io.observe(cajaRef.current)
+    return () => io.disconnect()
+  }, [])
 
   return (
     <div className="w-full max-w-2xl mx-auto">
-      <div className="relative aspect-square hud-frame rounded-2xl overflow-hidden bg-void/40">
+      <div ref={cajaRef} className="relative aspect-square hud-frame rounded-2xl overflow-hidden bg-void/40">
         <GlBoundary>
           <Canvas
+            frameloop={enVista ? 'always' : 'never'}
             camera={{ position: [0, 1.6, 6.2], fov: 42 }}
             dpr={[1, 1.5]}
             gl={{ antialias: true, alpha: true }}

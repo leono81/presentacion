@@ -182,13 +182,19 @@ function globo(ctx, v, a = 1, tierraA = 1) {
   ctx.arc(v.cx, v.cy, v.r, 0, Math.PI * 2)
   ctx.fill()
   if (tierraA > 0) {
+    // los ~3700 puntos de tierra agrupados en 12 tonos: un fill por tono en vez de un fillStyle por
+    // punto, que era lo más caro de toda la película
     const s = Math.max(1.1, v.r * 0.0105)
+    const tonos = Array.from({ length: 12 }, () => new Path2D())
     for (const [lon, lat] of TIERRA) {
       const p = proyectar(lon, lat, v)
       if (!p) continue
-      ctx.fillStyle = `rgba(148,163,184,${(0.18 + 0.55 * p[2]) * tierraA})`
-      ctx.fillRect(p[0] - s / 2, p[1] - s / 2, s, s)
+      tonos[Math.min(11, Math.floor(p[2] * 12))].rect(p[0] - s / 2, p[1] - s / 2, s, s)
     }
+    tonos.forEach((camino, k) => {
+      ctx.fillStyle = `rgba(148,163,184,${(0.18 + 0.55 * ((k + 0.5) / 12)) * tierraA})`
+      ctx.fill(camino)
+    })
   }
   ctx.strokeStyle = 'rgba(147,197,253,0.35)'
   ctx.lineWidth = 1.2
@@ -268,10 +274,15 @@ function satelite(ctx, x, y, e, a = 1) {
 }
 
 function estrellas(ctx, W, H, reloj, a = 1) {
+  // un solo color y la transparencia con globalAlpha: armar un rgba() por estrella en cada cuadro costaba
+  const a0 = ctx.globalAlpha
+  ctx.save()
+  ctx.fillStyle = 'rgb(226,232,240)'
   for (const s of ESTRELLAS) {
-    ctx.fillStyle = `rgba(226,232,240,${s.a * a * (0.75 + 0.25 * Math.sin(reloj * 1.3 + s.f))})`
+    ctx.globalAlpha = a0 * s.a * a * (0.75 + 0.25 * Math.sin(reloj * 1.3 + s.f))
     ctx.fillRect(s.x * W, s.y * H, s.s, s.s)
   }
+  ctx.restore()
 }
 
 /** La composición según la forma de la escena. */

@@ -141,27 +141,35 @@ export default function Penon() {
 }
 
 /** Mini wind particle field for the Viento card */
-function WindParticles() {
-  const particles = Array.from({ length: 12 }, (_, i) => ({
+// fijas (no Math.random en cada render) y con transform en vez de `left`: `left` obliga a recalcular el
+// layout en cada cuadro, y estas animaciones no paran nunca
+const PARTICULAS = Array.from({ length: 12 }, (_, i) => {
+  const r = (k) => ((Math.sin(i * 12.9898 + k * 78.233) * 43758.5453) % 1 + 1) % 1
+  const width = 20 + r(1) * 30
+  return {
     y: 15 + (i % 4) * 22,
     delay: i * 0.3,
-    duration: 2 + Math.random() * 1.5,
-    opacity: 0.08 + Math.random() * 0.12,
-    width: 20 + Math.random() * 30,
-  }))
+    duration: 2 + r(2) * 1.5,
+    opacity: 0.08 + r(3) * 0.12,
+    width,
+    // de -20 % a 120 % del ancho de la tarjeta, en % del ancho propio (lo que mide translateX)
+    x: [`${(-20 / width) * 100}%`, `${(120 / width) * 100}%`],
+  }
+})
 
+function WindParticles() {
   return (
-    <div className="absolute inset-0 pointer-events-none">
-      {particles.map((p, i) => (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {PARTICULAS.map((p, i) => (
         <motion.div
           key={i}
-          className="absolute h-px bg-gradient-to-r from-transparent via-sky-accent to-transparent rounded-full"
+          className="absolute left-0 h-px bg-gradient-to-r from-transparent via-sky-accent to-transparent rounded-full"
           style={{
             top: `${p.y}%`,
             width: `${p.width}%`,
             opacity: p.opacity,
           }}
-          animate={{ left: ['-20%', '120%'] }}
+          animate={{ x: p.x }}
           transition={{
             repeat: Infinity,
             duration: p.duration,

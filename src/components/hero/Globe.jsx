@@ -1,4 +1,4 @@
-import { useRef, useMemo, Suspense } from 'react'
+import { useEffect, useRef, useMemo, useState, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { OrbitControls, useTexture, Html, Stars, Trail } from '@react-three/drei'
 import * as THREE from 'three'
@@ -210,6 +210,9 @@ function TierraDelFuegoMarker() {
  */
 function PolarOrbit({ color, radius, speed, longitudeOffset, name }) {
   const satRef = useRef()
+  // ángulo acumulado con delta (no con clock.elapsedTime): al pausar el globo fuera de pantalla el reloj
+  // de R3F vuelve a 0 y el satélite saltaría, con una estela cruzando el globo
+  const anguloRef = useRef(0)
 
   const lonRad = THREE.MathUtils.degToRad(longitudeOffset)
 
@@ -231,8 +234,9 @@ function PolarOrbit({ color, radius, speed, longitudeOffset, name }) {
     return new THREE.CatmullRomCurve3(points, true)
   }, [radius, lonRad])
 
-  useFrame(({ clock }) => {
-    const angle = (clock.elapsedTime * speed) % (Math.PI * 2)
+  useFrame((_, delta) => {
+    anguloRef.current = (anguloRef.current + Math.min(delta, 0.1) * speed) % (Math.PI * 2)
+    const angle = anguloRef.current
     const localY = radius * Math.cos(angle)
     const localZ = radius * Math.sin(angle)
     const x = localZ * Math.sin(lonRad)
@@ -318,9 +322,19 @@ function Scene() {
 }
 
 export default function GlobeScene() {
+  // fuera de pantalla no se dibuja: si no, el globo (estelas, etiquetas HTML, estrellas) sigue
+  // renderizando a 60 fps mientras se presenta el resto de la página
+  const cajaRef = useRef(null)
+  const [enVista, setEnVista] = useState(true)
+  useEffect(() => {
+    const io = new IntersectionObserver(([e]) => setEnVista(e.isIntersecting))
+    io.observe(cajaRef.current)
+    return () => io.disconnect()
+  }, [])
   return (
-    <div className="w-full h-full">
+    <div ref={cajaRef} className="w-full h-full">
       <Canvas
+        frameloop={enVista ? 'always' : 'never'}
         camera={{ position: [0, 0.5, 9], fov: 36 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
