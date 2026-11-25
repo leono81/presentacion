@@ -1,0 +1,552 @@
+/* Brigadistas.jsx: la película a todo el ancho, con la capa de texto sincronizada encima.
+   Colores: ámbar para la red de radios (lo que está en desarrollo), rojo y naranja para el fuego,
+   blanco para el enlace satelital del jefe de brigada. */
+.br-seccion {
+  --br-ambar: #f59e0b;
+  --br-ambar-claro: #fde68a;
+  --br-rojo: #ef4444;
+  --br-papel: #050b18;
+  --br-gris: #94a3b8;
+  --br-blanco: #f8fafc;
+  margin-top: 7rem;
+}
+.br-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 16px clamp(32px, 5vw, 80px);
+  align-items: end;
+}
+.br-texto p {
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 50ch;
+  color: var(--br-gris);
+}
+.br-texto .br-estado {
+  margin-top: 14px;
+  font-size: 13px;
+}
+
+/* más ancha que el contenedor, como la pista de Capas */
+.br-pista {
+  margin-top: 2.5rem;
+  margin-inline: calc(50% - 50vw);
+  padding-inline: max(16px, calc(50vw - 960px));
+}
+.br-cuadro {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 2 / 1;
+  /* que entre entero debajo del nav en un proyector de 1280x720 o más */
+  max-height: calc(100vh - 88px);
+  margin-inline: auto;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--br-papel);
+  border: 1px solid rgb(255 255 255 / 0.06);
+}
+@supports (height: 100svh) {
+  .br-cuadro {
+    max-height: calc(100svh - 88px);
+  }
+}
+.br-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+  display: block;
+}
+.br-capa {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+}
+/* abajo, para que la leyenda se lea sobre el mapa */
+.br-sombra {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 34%;
+  background: linear-gradient(to top, rgb(5 11 24 / 0.82), transparent);
+}
+
+/* rótulos anclados: la pista da el punto; el rótulo sale a la derecha del marcador */
+.br-rotulo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  will-change: transform, opacity;
+}
+.br-rotulo::after {
+  content: '';
+}
+.br-r-radio,
+.br-r-jefe,
+.br-r-foco,
+.br-r-alerta,
+.br-r-bloqueo,
+.br-r-zona,
+.br-r-lejos {
+  margin: -9px 0 0 14px;
+  padding: 3px 7px 4px;
+  border-radius: 5px;
+  background: rgb(5 11 24 / 0.78);
+}
+.br-r-radio {
+  color: var(--br-ambar-claro);
+  border: 1px solid rgb(245 158 11 / 0.35);
+}
+.br-r-jefe {
+  color: var(--br-blanco);
+  border: 1px solid rgb(248 250 252 / 0.45);
+  margin-left: 16px;
+}
+.br-r-foco {
+  color: #fecaca;
+  border: 1px solid rgb(239 68 68 / 0.55);
+  margin-left: 18px;
+}
+.br-r-alerta {
+  color: #fff;
+  font-weight: 600;
+  background: rgb(127 29 29 / 0.92);
+  border: 1px solid rgb(248 113 113 / 0.9);
+  box-shadow: 0 0 22px rgb(239 68 68 / 0.35);
+}
+.br-r-bloqueo {
+  color: #fda4af;
+  border: 1px dashed rgb(251 113 133 / 0.6);
+  margin-left: 12px;
+}
+.br-r-agua {
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-family: 'Archivo', sans-serif;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: rgb(148 163 184 / 0.85);
+}
+.br-r-zona {
+  color: #ddd6fe;
+  border: 1px dashed rgb(167 139 250 / 0.6);
+  white-space: normal;
+  width: max-content;
+  max-width: 300px;
+  line-height: 1.35;
+  margin-top: -14px;
+}
+.br-r-lejos {
+  color: var(--br-gris);
+  border: 1px solid rgb(148 163 184 / 0.3);
+  margin: -9px 0 0 0;
+}
+.br-r-recibido,
+.br-r-starlink {
+  margin: 0;
+  padding: 5px 9px 6px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  background: rgb(5 11 24 / 0.86);
+}
+/* a la izquierda del punto, cuando a la derecha no entra */
+.br-rotulo[data-izq]:not(.br-r-recibido):not(.br-r-starlink):not(.br-r-agua) {
+  margin-left: 0;
+  translate: calc(-100% - 14px) 0;
+}
+/* sobre el jefe: el mensaje que llegó, y abajo, lo que sube por Starlink */
+.br-r-recibido {
+  color: var(--br-ambar-claro);
+  border: 1px solid rgb(253 230 138 / 0.7);
+  translate: -50% calc(-100% - 22px);
+}
+.br-r-starlink {
+  color: var(--br-blanco);
+  border: 1px solid rgb(248 250 252 / 0.55);
+  translate: -50% 18px;
+}
+
+/* el cartel fijo, arriba a la izquierda */
+.br-badge {
+  position: absolute;
+  top: clamp(12px, 2.4%, 24px);
+  left: clamp(12px, 1.6%, 28px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--br-blanco);
+  background: rgb(5 11 24 / 0.82);
+  border: 1px solid rgb(245 158 11 / 0.55);
+  visibility: hidden;
+}
+.br-badge svg {
+  color: var(--br-ambar);
+}
+.br-sim {
+  position: absolute;
+  left: clamp(12px, 1.6%, 28px);
+  bottom: clamp(10px, 2%, 18px);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(148 163 184 / 0.7);
+}
+.br-escala {
+  --ancho: 80px;
+  position: absolute;
+  left: clamp(12px, 1.6%, 28px);
+  bottom: calc(clamp(10px, 2%, 18px) + 22px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: rgb(203 213 225 / 0.9);
+  visibility: hidden;
+}
+.br-escala-linea {
+  display: block;
+  width: var(--ancho);
+  height: 6px;
+  border: 1.5px solid rgb(203 213 225 / 0.85);
+  border-top: 0;
+}
+.br-leyenda {
+  position: absolute;
+  left: clamp(12px, 1.6%, 28px);
+  bottom: calc(clamp(10px, 2%, 18px) + 50px);
+  max-width: min(44ch, 52%);
+  margin: 0;
+  font-family: 'Archivo', sans-serif;
+  font-size: clamp(15px, 1.25vw, 20px);
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--br-blanco);
+  text-wrap: balance;
+  visibility: hidden;
+}
+.br-cierre {
+  position: absolute;
+  left: 36%;
+  top: 50%;
+  translate: -50% -50%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 22px;
+  border-radius: 10px;
+  background: rgb(5 11 24 / 0.84);
+  border: 1px solid rgb(245 158 11 / 0.4);
+  font-family: 'Archivo', sans-serif;
+  font-weight: 700;
+  font-size: clamp(16px, 1.7vw, 28px);
+  letter-spacing: -0.01em;
+  color: var(--br-blanco);
+  white-space: nowrap;
+  visibility: hidden;
+}
+.br-cierre span:first-child {
+  color: var(--br-ambar);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 0.62em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.br-cierre-sep {
+  width: 1px;
+  align-self: stretch;
+  background: rgb(245 158 11 / 0.4);
+}
+
+/* el panel: lo que recibe el jefe de brigada, a la derecha del cuadro */
+.br-panel {
+  position: absolute;
+  right: clamp(12px, 1.6%, 28px);
+  top: 50%;
+  translate: 0 -50%;
+  width: clamp(384px, 27%, 470px);
+  padding: 14px 16px 12px;
+  border-radius: 10px;
+  background: rgb(5 11 24 / 0.86);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  visibility: hidden;
+  pointer-events: auto;
+}
+.br-panel-cab {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(203 213 225 / 0.9);
+}
+.br-panel-sim {
+  color: var(--br-ambar);
+  letter-spacing: 0.2em;
+}
+.br-fila {
+  --vis: 1;
+  display: grid;
+  grid-template-columns: 1.55fr 0.95fr 1.05fr 0.8fr 1.35fr;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 8px;
+  border-radius: 6px;
+  font-size: clamp(11px, 0.78vw, 13.5px);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: rgb(226 232 240 / calc(0.25 + 0.75 * var(--vis)));
+  border-left: 2px solid transparent;
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease;
+}
+.br-fila + .br-fila {
+  margin-top: 2px;
+}
+.br-fila-cab {
+  padding-block: 0 6px;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(148 163 184 / 0.75);
+  border-bottom: 1px solid rgb(255 255 255 / 0.06);
+  border-radius: 0;
+  margin-bottom: 4px;
+}
+.br-nombre {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.br-nombre i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--br-ambar);
+  opacity: var(--vis);
+  box-shadow: 0 0 0 2px rgb(245 158 11 / 0.2);
+}
+.br-ult {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.br-saltos {
+  font-size: 0.78em;
+  color: var(--br-ambar-claro);
+}
+.br-fila[data-ahora] .br-ult > span:first-child {
+  color: var(--br-ambar-claro);
+}
+.br-fila[data-alerta] {
+  background: rgb(239 68 68 / 0.16);
+  border-left-color: var(--br-rojo);
+  color: #fee2e2;
+}
+.br-fila[data-alerta] [data-c='temp'] {
+  color: #fca5a5;
+  font-weight: 700;
+}
+.br-fila[data-alerta] .br-nombre i {
+  background: var(--br-rojo);
+  box-shadow: 0 0 0 2px rgb(239 68 68 / 0.3);
+}
+.br-subida {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgb(255 255 255 / 0.06);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: rgb(203 213 225 / 0.9);
+}
+.br-subida svg {
+  color: var(--br-blanco);
+  flex: none;
+}
+.br-subida [data-c='sub'] {
+  margin-left: auto;
+  color: var(--br-blanco);
+}
+
+/* los tres pasos, debajo; se encienden según la escena */
+.br-pasos {
+  list-style: none;
+  margin: 18px auto 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 28px);
+  max-width: 1920px;
+}
+.br-pasos li {
+  position: relative;
+  padding: 14px 4px 0 44px;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  transition: border-color 0.5s ease;
+}
+.br-pasos li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  height: 1px;
+  width: 0;
+  background: var(--br-ambar);
+  transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.br-pasos li[data-activo]::before {
+  width: 100%;
+}
+.br-num {
+  position: absolute;
+  left: 4px;
+  top: 15px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgb(148 163 184 / 0.45);
+  transition: color 0.5s ease;
+}
+.br-pasos h4 {
+  margin: 0 0 4px;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: rgb(248 250 252 / 0.6);
+  transition: color 0.5s ease;
+}
+.br-pasos p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: rgb(148 163 184 / 0.55);
+  transition: color 0.5s ease;
+}
+.br-pasos li[data-activo] .br-num {
+  color: var(--br-ambar);
+}
+.br-pasos li[data-activo] h4 {
+  color: var(--br-blanco);
+}
+.br-pasos li[data-activo] p {
+  color: var(--br-gris);
+}
+
+/* angosto: el cuadro se recorta sobre la acción y el panel va debajo */
+@media (max-width: 900px) {
+  .br-seccion {
+    margin-top: 5rem;
+  }
+  .br-intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .br-pista {
+    padding-inline: 0;
+  }
+  .br-cuadro {
+    aspect-ratio: 4 / 3.4;
+    max-height: none;
+    border-radius: 0;
+    border-inline: 0;
+  }
+  .br-video {
+    object-position: 10% 50%;
+  }
+  .br-rotulo {
+    font-size: 10px;
+  }
+  .br-r-radio,
+  .br-r-jefe,
+  .br-r-foco,
+  .br-r-alerta,
+  .br-r-bloqueo,
+  .br-r-zona,
+  .br-r-lejos {
+    padding: 2px 5px 3px;
+    margin-left: 10px;
+    margin-top: -8px;
+  }
+  .br-r-zona {
+    max-width: 190px;
+  }
+  .br-r-recibido,
+  .br-r-starlink {
+    font-size: 10px;
+    padding: 3px 6px 4px;
+  }
+  .br-badge {
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    padding: 5px 9px 6px;
+    gap: 6px;
+  }
+  /* en celular la leyenda va debajo del cuadro, con su lugar reservado para que nada salte */
+  .br-leyenda {
+    position: static;
+    max-width: none;
+    min-height: 2.7em;
+    margin: 0 0 10px;
+    font-size: 14px;
+    visibility: visible;
+  }
+  .br-r-zona,
+  .br-r-lejos {
+    display: none;
+  }
+  .br-cierre {
+    left: 50%;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 15px;
+    padding: 10px 14px;
+    white-space: normal;
+    text-align: center;
+  }
+  .br-cierre-sep {
+    display: none;
+  }
+  .br-panel-afuera {
+    padding: 12px 16px 0;
+  }
+  .br-panel {
+    position: static;
+    translate: none;
+    width: auto;
+    visibility: visible;
+  }
+  .br-fila {
+    grid-template-columns: 1.5fr 0.95fr 1.05fr 0.75fr 1.3fr;
+    font-size: 11px;
+    padding: 6px 4px;
+  }
+  .br-nombre {
+    gap: 6px;
+  }
+  .br-pasos {
+    grid-template-columns: minmax(0, 1fr);
+    padding-inline: 16px;
+    gap: 6px;
+  }
+}

@@ -4,6 +4,7 @@ import { fadeInUp } from '../../lib/animations'
 import FwiDiagram from './FwiDiagram'
 import Capas from './Capas'
 import Rayos from './Rayos'
+import Brigadistas from './Brigadistas'
 import { Wind, Gauge, CloudSun } from 'lucide-react'
 
 export default function Penon() {
@@ -271,6 +272,9 @@ export default function Penon() {
 
         {/* ── Todas las capas, al mismo tiempo ── */}
         <Capas />
+
+        {/* ── Lo que viene: brigadistas en el mapa con Meshtastic ── */}
+        <Brigadistas />
       </div>
 
       {/* Subtle aurora bottom edge */}
