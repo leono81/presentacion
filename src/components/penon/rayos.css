@@ -1,0 +1,296 @@
+/* Rayos.jsx: la película en tres capítulos. Cian solo para los rayos (#22d3ee y #0e7490);
+   ámbar para el Sol y la intrusión; rojo claro para los rayos falsos; verde para Penon. */
+.ry {
+  --ry-papel: #040915;
+  --ry-gris: #94a3b8;
+  --ry-blanco: #f8fafc;
+  --ry-cian: #22d3ee;
+  margin-top: 7rem;
+}
+.ry-cabeza {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 12px clamp(32px, 5vw, 80px);
+  align-items: end;
+  margin-bottom: 1.5rem;
+}
+.ry-cejilla {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgb(148 163 184 / 0.65);
+  margin-bottom: 14px;
+}
+.ry-cejilla svg {
+  width: 14px;
+  height: 14px;
+  color: var(--ry-cian);
+}
+.ry-titulo {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 118;
+  font-weight: 800;
+  font-size: clamp(30px, 3.4vw, 42px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--ry-blanco);
+}
+.ry-titulo span {
+  color: var(--ry-cian);
+}
+.ry-bajada {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ry-gris);
+  max-width: 60ch;
+}
+
+/* capítulos: como los de un video, con su avance */
+.ry-capitulos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.ry-capitulos li {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 14px 14px;
+  border-radius: 10px;
+  border: 1px solid rgb(255 255 255 / 0.05);
+  cursor: pointer;
+  outline: none;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+.ry-capitulos li:hover,
+.ry-capitulos li:focus-visible {
+  border-color: rgb(34 211 238 / 0.35);
+}
+.ry-capitulos li[data-activo] {
+  background: rgb(34 211 238 / 0.05);
+  border-color: rgb(34 211 238 / 0.28);
+}
+.ry-cap-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: rgb(148 163 184 / 0.6);
+  font-variant-numeric: tabular-nums;
+}
+.ry-capitulos li[data-activo] .ry-cap-num {
+  color: #67e8f9;
+}
+.ry-cap-titulo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: rgb(248 250 252 / 0.6);
+  transition: color 0.3s;
+}
+.ry-capitulos li[data-activo] .ry-cap-titulo {
+  color: var(--ry-blanco);
+}
+.ry-cap-barra {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 7px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgb(255 255 255 / 0.07);
+  overflow: hidden;
+}
+.ry-cap-barra b {
+  position: absolute;
+  inset: 0;
+  background: var(--ry-cian);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* el escenario: el texto a la izquierda, la película a la derecha */
+.ry-escenario {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 34fr) minmax(0, 66fr);
+  height: clamp(400px, min(46vw, 100vh - 190px), 640px);
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--ry-papel);
+  border: 1px solid rgb(255 255 255 / 0.06);
+}
+@supports (height: 100svh) {
+  .ry-escenario {
+    height: clamp(400px, min(46vw, 100svh - 190px), 640px);
+  }
+}
+.ry-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(20px, 2.4vw, 34px);
+  border-right: 1px solid rgb(255 255 255 / 0.05);
+  background: linear-gradient(180deg, rgb(15 23 42 / 0.55), rgb(4 9 21 / 0.2));
+  min-width: 0;
+}
+.ry-panel-cap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 118;
+  font-weight: 800;
+  font-size: clamp(20px, 2vw, 28px);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ry-blanco);
+}
+.ry-panel-cap span {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: #67e8f9;
+}
+.ry-panel-texto {
+  margin-top: 18px;
+  font-size: clamp(15px, 1.25vw, 18px);
+  line-height: 1.55;
+  color: #e2e8f0;
+  animation: ry-entra 0.45s ease-out both;
+}
+@keyframes ry-entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.ry-puntos {
+  display: flex;
+  gap: 6px;
+  margin-top: 18px;
+}
+.ry-puntos i {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.12);
+  transition: background-color 0.3s;
+}
+.ry-puntos i[data-visto] {
+  background: rgb(34 211 238 / 0.45);
+}
+.ry-puntos i[data-on] {
+  background: var(--ry-cian);
+}
+.ry-panel-nota {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: rgb(148 163 184 / 0.55);
+}
+.ry-escena {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+.ry-lienzo,
+.ry-mapa {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ry-lienzo {
+  pointer-events: none;
+}
+.ry-mapa {
+  opacity: 0;
+  visibility: hidden;
+}
+.ry-pausa {
+  align-self: flex-start;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgb(4 9 21 / 0.9);
+  border: 1px solid rgb(255 255 255 / 0.15);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e2e8f0;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.ry-pausa[data-visible] {
+  opacity: 1;
+}
+.ry-pausa svg {
+  width: 12px;
+  height: 12px;
+}
+.ry-pausa i {
+  width: 8px;
+  height: 9px;
+  border-inline: 2.5px solid currentColor;
+}
+.ry-fuente {
+  margin-top: 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: rgb(148 163 184 / 0.55);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .ry-cabeza {
+    grid-template-columns: 1fr;
+  }
+  .ry-capitulos {
+    gap: 6px;
+  }
+  .ry-capitulos li {
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px 12px;
+  }
+  .ry-cap-titulo {
+    font-size: 12.5px;
+    line-height: 1.2;
+  }
+  .ry-cap-barra {
+    left: 10px;
+    right: 10px;
+  }
+  .ry-escenario {
+    display: flex;
+    flex-direction: column-reverse;
+    height: auto;
+  }
+  .ry-escena {
+    aspect-ratio: 1 / 1.08;
+  }
+  .ry-panel {
+    border-right: 0;
+    border-top: 1px solid rgb(255 255 255 / 0.05);
+    padding: 16px 16px 14px;
+  }
+  .ry-panel-texto {
+    margin-top: 10px;
+    font-size: 14.5px;
+    min-height: 9.5em;
+  }
+  .ry-panel-nota {
+    margin-top: 12px;
+  }
+}

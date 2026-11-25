@@ -1,0 +1,456 @@
+/* RayosMapa.jsx: capítulo 3 de Rayos (cómo se muestran). Llena la escena del padre: el mapa a la
+   izquierda y el aviso, Telegram y la leyenda a la derecha; en una escena angosta, uno arriba del otro.
+   Cian = rayo (como en Penon); el borde lleva el color de la clase de peligro de la zona. */
+.rm-corto {
+  display: none;
+}
+.rm {
+  position: absolute;
+  inset: 0;
+  container: rm / size;
+  font-family: var(--font-body);
+  color: #e2e8f0;
+}
+.rm-grilla {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 40%);
+  gap: 16px;
+  padding: 14px 16px 14px 12px;
+}
+
+/* ---------- el mapa ---------- */
+.rm-celda {
+  position: relative;
+  min-height: 0;
+  container: celda / size;
+}
+.rm-mapa {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 305 / 300;
+  width: min(100cqw, calc(100cqh * 305 / 300));
+}
+.rm-mapa svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.rm-zona {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgb(4 9 21 / 0.82);
+  border: 1px solid color-mix(in srgb, var(--rm-c) 55%, transparent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #cbd5e1;
+  pointer-events: none;
+}
+.rm-zona b {
+  color: var(--rm-c);
+  font-weight: 600;
+}
+.rm-punto {
+  position: absolute;
+  box-sizing: content-box;
+  border-style: solid;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.rm-rotulo {
+  position: absolute;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #e2e8f0;
+  background: rgb(4 9 21 / 0.85);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  border-radius: 6px;
+  padding: 2px 7px;
+  pointer-events: none;
+  animation: rm-aparece 0.35s ease-out both;
+}
+.rm-rotulo[data-lado='der'] {
+  transform: translate(16px, -50%);
+}
+.rm-rotulo[data-lado='abajo'] {
+  transform: translate(-50%, 14px);
+}
+.rm-rotulo[data-lado='arriba'] {
+  transform: translate(-50%, calc(-100% - 13px));
+}
+@keyframes rm-aparece {
+  from {
+    opacity: 0;
+  }
+}
+/* el sello de la capa, como en el mapa de Penon */
+.rm-sello {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgb(15 23 42 / 0.8);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.rm-reloj {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  font-variant-numeric: tabular-nums;
+}
+.rm-reloj span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(148 163 184 / 0.75);
+}
+.rm-reloj b {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.rm-reloj[data-ff] b {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 118;
+  font-weight: 800;
+  font-size: 34px;
+  line-height: 1;
+  color: #67e8f9;
+}
+
+/* ---------- el panel: aviso, Telegram, leyenda ---------- */
+.rm-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  min-width: 0;
+}
+.rm-aviso {
+  border-radius: 10px;
+  background: rgb(15 23 42 / 0.92);
+  border: 1px solid rgb(51 65 85);
+  padding: 8px 11px 9px;
+  opacity: 0.25;
+  transition: opacity 0.3s;
+}
+.rm-aviso[data-visible] {
+  opacity: 1;
+}
+.rm-aviso h4 {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rm-c, #64748b);
+}
+.rm-aviso ul {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 22px;
+}
+.rm-aviso li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  border-left: 4px solid var(--rm-c);
+  padding: 2px 0 2px 8px;
+  animation: rm-aparece 0.35s ease-out both;
+}
+.rm-aviso li b {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+}
+.rm-aviso li i {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  word-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--rm-c);
+}
+.rm-aviso li > span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #94a3b8;
+}
+.rm-mensajes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+.rm-mensajes-rotulo {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(148 163 184 / 0.7);
+}
+.rm-fila {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  animation: rm-aparece 0.4s ease-out both;
+}
+/* burbuja de Telegram (tema oscuro) */
+.rm-tg {
+  width: 100%;
+  border-radius: 12px 12px 12px 4px;
+  background: #182533;
+  border-left: 3px solid var(--rm-c);
+  padding: 7px 11px 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #f1f5f9;
+}
+.rm-tg-de {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #64b5ef;
+  margin-bottom: 1px;
+}
+.rm-tg-titulo {
+  font-weight: 700;
+}
+.rm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 10px 3px 5px;
+  border-radius: 999px;
+  background: rgb(4 9 21 / 0.9);
+  border: 1px solid rgb(249 115 22 / 0.45);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #fed7aa;
+  transform-origin: left center;
+}
+.rm-chip[data-libre] {
+  border-color: rgb(148 163 184 / 0.4);
+  color: #e2e8f0;
+}
+.rm-chip-nota {
+  padding-left: 10px;
+  border-color: rgb(234 179 8 / 0.45);
+  color: #fef08a;
+  animation: rm-aparece 0.35s ease-out both;
+}
+.rm-anillo {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.rm-pie {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rm-edad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #cbd5e1;
+}
+.rm-edad span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rm-edad i {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1.5px solid #fff;
+}
+.rm-edad .rm-edad-nota {
+  color: rgb(148 163 184 / 0.85);
+}
+.rm-nota {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgb(148 163 184 / 0.6);
+}
+
+/* ---------- escena angosta (celular): mapa arriba, panel compacto abajo ---------- */
+@container rm (max-width: 560px) {
+  .rm-largo {
+    display: none;
+  }
+  .rm-corto {
+    display: inline;
+  }
+  /* arriba el mapa y, al costado, la leyenda; abajo el aviso y los mensajes */
+  .rm-grilla {
+    grid-template-columns: minmax(0, 1fr) 104px;
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas: 'mapa lado' 'aviso aviso' 'msj msj';
+    gap: 6px 8px;
+    padding: 8px 10px 9px;
+  }
+  .rm-celda {
+    grid-area: mapa;
+  }
+  .rm-panel {
+    display: contents;
+  }
+  .rm-aviso {
+    grid-area: aviso;
+    padding: 4px 8px 5px;
+  }
+  .rm-mensajes {
+    grid-area: msj;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .rm-pie {
+    grid-area: lado;
+    align-self: end;
+    gap: 6px;
+  }
+  .rm-zona {
+    font-size: 10px;
+    padding: 0 5px;
+  }
+  .rm-rotulo {
+    font-size: 10px;
+    padding: 0 4px;
+  }
+  .rm-rotulo[data-lado='der'] {
+    transform: translate(11px, -50%);
+  }
+  .rm-rotulo[data-lado='abajo'] {
+    transform: translate(-50%, 9px);
+  }
+  .rm-rotulo[data-lado='arriba'] {
+    transform: translate(-50%, calc(-100% - 9px));
+  }
+  .rm-sello {
+    font-size: 10px;
+    padding: 1px 7px;
+  }
+  .rm-reloj {
+    left: auto;
+    right: 0;
+    bottom: auto;
+    top: 0;
+    align-items: flex-end;
+  }
+  .rm-reloj span {
+    display: none;
+  }
+  .rm-reloj b {
+    font-size: 11px;
+  }
+  .rm-reloj[data-ff] b {
+    font-size: 22px;
+  }
+  .rm-aviso h4 {
+    font-size: 10px;
+  }
+  .rm-aviso ul {
+    margin-top: 2px;
+    gap: 2px;
+    min-height: 16px;
+  }
+  .rm-aviso li {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    column-gap: 6px;
+    padding: 0 0 0 6px;
+    border-left-width: 3px;
+  }
+  .rm-aviso li b {
+    font-size: 11px;
+  }
+  .rm-aviso li i,
+  .rm-aviso li > span {
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+  .rm-aviso li > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .rm-mensajes-rotulo {
+    display: none;
+  }
+  .rm-fila {
+    min-width: 0;
+    gap: 3px;
+  }
+  .rm-tg {
+    font-size: 10px;
+    line-height: 1.3;
+    padding: 3px 6px 4px;
+    border-radius: 9px 9px 9px 3px;
+  }
+  .rm-tg-de,
+  .rm-tg-extra,
+  .rm-tg p:last-child {
+    display: none;
+  }
+  .rm-chip {
+    font-family: var(--font-body);
+    font-size: 10px;
+    gap: 4px;
+    padding: 1px 6px 1px 3px;
+    white-space: nowrap;
+  }
+  .rm-chip-nota {
+    padding-left: 6px;
+  }
+  .rm-anillo {
+    width: 12px;
+    height: 12px;
+  }
+  .rm-edad {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 10px;
+    gap: 4px;
+  }
+  .rm-edad i {
+    width: 10px;
+    height: 10px;
+  }
+  .rm-edad .rm-edad-nota {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+  .rm-nota {
+    line-height: 1.3;
+  }
+}
