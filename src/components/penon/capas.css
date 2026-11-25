@@ -14,32 +14,41 @@
   --cp-gris: #94a3b8;
   --cp-blanco: #f8fafc;
   --cp-ambar: #f59e0b;
-  margin-top: 6rem;
+  /* lo que ocupa el panel pegado además de la isla (nav, leyenda, en desarrollo, fuentes) */
+  --cp-resto: 400px;
+  margin-top: 2.5rem;
+  /* más ancha que el contenedor de la página: en pantallas grandes la isla llega a 1600 px */
+  margin-inline: calc(50% - 50vw);
+  padding-inline: max(24px, calc(50vw - 800px));
 }
 .cp-pista.cp-con-scroll {
   height: 330vh;
 }
-.cp-panel {
-  padding-top: clamp(16px, 3vh, 32px);
+.cp-intro {
+  margin-top: 6rem;
   display: grid;
-  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
-  gap: clamp(32px, 4vw, 64px);
-  align-content: start;
-  align-items: center;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 16px clamp(32px, 5vw, 80px);
+  align-items: end;
+}
+.cp-panel {
+  padding-top: clamp(8px, 2vh, 24px);
 }
 .cp-con-scroll .cp-panel {
   position: sticky;
   top: 64px;
 }
+.cp-texto p + p {
+  margin-top: 12px;
+}
 .cp-texto p {
-  margin-top: 14px;
   font-size: 15px;
   line-height: 1.6;
   max-width: 48ch;
   color: var(--cp-gris);
 }
 .cp-principio {
-  margin-top: 22px;
+  margin-top: 18px;
   font-family: 'Archivo', sans-serif;
   font-style: italic;
   font-weight: 600;
@@ -50,13 +59,15 @@
   text-wrap: balance;
 }
 .cp-texto .cp-estado {
-  margin-top: 18px;
+  margin-top: 16px;
   font-size: 13px;
 }
 
 .cp-pila {
   position: relative;
   margin-inline: auto;
+  /* la isla, tan grande como deje el alto de la pantalla: el panel pegado entero tiene que entrar */
+  max-width: max(320px, calc((100vh - var(--cp-resto)) * var(--cp-aspecto)));
 }
 .cp-pila svg {
   display: block;
@@ -115,11 +126,20 @@
 /* la leyenda, abajo de la pila: cada capa aparece cuando empieza a caer */
 .cp-leyenda {
   list-style: none;
-  margin-top: 12px;
+  margin-top: 8px;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px clamp(16px, 2vw, 28px);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px clamp(12px, 1.4vw, 22px);
+}
+/* menos ancho: la leyenda en dos filas, y la isla deja más lugar */
+@media (max-width: 1199px) {
+  .cp-pista {
+    --cp-resto: 520px;
+  }
+  .cp-leyenda {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .cp-leyenda li {
   transition:
@@ -156,8 +176,8 @@
 
 /* lo que está en desarrollo: punteado, aparte de la pila; aparece cuando la pila está armada */
 .cp-proximas {
-  margin-top: 14px;
-  padding-top: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px dashed color-mix(in srgb, var(--cp-ambar) 40%, transparent);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -180,7 +200,7 @@
   opacity: 0;
 }
 .cp-fuentes {
-  margin-top: 12px;
+  margin-top: 8px;
   font-size: 11px;
   line-height: 1.5;
   color: color-mix(in srgb, var(--cp-gris) 55%, transparent);
@@ -204,13 +224,13 @@
 
 /* angosto: el texto va antes, en su lugar; lo que queda pegado es la pila con la leyenda */
 @media (max-width: 900px) {
+  .cp-intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .cp-panel,
   .cp-con-scroll .cp-panel {
     position: static;
     display: block;
-  }
-  .cp-texto {
-    margin-bottom: 24px;
   }
   .cp-con-scroll .cp-lamina {
     position: sticky;
@@ -226,6 +246,9 @@
     content: '';
     display: block;
     height: 230vh;
+  }
+  .cp-pila {
+    max-width: none;
   }
   .cp-leyenda,
   .cp-proximas ul {

@@ -127,7 +127,6 @@ export default function Capas() {
     if (!pista || matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const satEl = pista.querySelector('.cp-satelite')
     const traza = pista.querySelector('.cp-traza')
-    const texto = pista.querySelector('.cp-texto')
     const panel = pista.querySelector('.cp-panel')
     const lamina = pista.querySelector('.cp-lamina')
     const hojaEls = [...pista.querySelectorAll('.cp-hoja')]
@@ -182,11 +181,10 @@ export default function Capas() {
     const pintar = () => {
       pedido = 0
       const r = pista.getBoundingClientRect()
-      // lo que se queda pegado: en ancho, el panel entero; en angosto, la lámina, que va después del texto
-      const antes = angosto.matches ? texto.offsetHeight + 24 : 0
+      // lo que se queda pegado: en ancho, el panel entero; en angosto, la lámina
       const alto = (angosto.matches ? lamina : panel).offsetHeight
       // 0 cuando lo pegado llega arriba; una unidad por capa y un poco más para que asiente
-      const s = entre(-(r.top - NAV + antes) / (r.height - antes - alto)) * 4.4
+      const s = entre(-(r.top - NAV) / (r.height - alto)) * 4.4
       hojaEls.forEach((h) => {
         const t = entre((s - +h.dataset.capa + 0.85) / 0.7)
         h.style.setProperty('--t', suave(t).toFixed(3))
@@ -213,27 +211,33 @@ export default function Capas() {
   }, [])
 
   return (
+    <>
+    {/* el texto va arriba, fuera de lo pegado: así la isla tiene todo el ancho */}
+    <div className="cp-intro">
+      <div>
+        <div className="font-mono text-[10px] text-slate-text/60 tracking-[0.25em] uppercase mb-4">Todas las capas, al mismo tiempo</div>
+        <h3 className="font-display font-800 text-3xl lg:text-5xl tracking-tight text-white-text text-balance">
+          Un solo mapa, <span className="text-emerald-accent">capa sobre capa</span>
+        </h3>
+        <blockquote className="cp-principio">Hoy, Penon muestra solo lo observado y medido.</blockquote>
+      </div>
+      <div className="cp-texto">
+        <p>
+          Cada fuente que vimos hace su parte. Penon las apila sobre la isla real para que quien combate el fuego vea cada foco con su
+          contexto: el peligro del día en su zona, si cayó en un yacimiento, si hubo rayos cerca y qué hay alrededor.
+        </p>
+        <p>Cuando pasa el satélite, los focos en el bosque dan alerta y el del yacimiento queda rotulado, sin perderse.</p>
+        <p className="cp-estado">
+          <span className="font-mono text-[10px] tracking-[0.2em] text-emerald-accent/80 mr-2.5">ESTADO</span>
+          En producción en Tierra del Fuego. Lo usan brigadistas y personal de gobierno, con acceso restringido.
+        </p>
+      </div>
+    </div>
+
     <div className="cp-pista" ref={pistaRef}>
       <div className="cp-panel">
-        <div className="cp-texto">
-          <div className="font-mono text-[10px] text-slate-text/60 tracking-[0.25em] uppercase mb-4">Todas las capas, al mismo tiempo</div>
-          <h3 className="font-display font-800 text-3xl lg:text-4xl tracking-tight text-white-text text-balance">
-            Un solo mapa, <span className="text-emerald-accent">capa sobre capa</span>
-          </h3>
-          <p>
-            Cada fuente que vimos hace su parte. Penon las apila sobre la isla real para que quien combate el fuego vea cada foco con su
-            contexto: el peligro del día en su zona, si cayó en un yacimiento, si hubo rayos cerca y qué hay alrededor.
-          </p>
-          <p>Cuando pasa el satélite, los focos en el bosque dan alerta y el del yacimiento queda rotulado, sin perderse.</p>
-          <blockquote className="cp-principio">Hoy, Penon muestra solo lo observado y medido.</blockquote>
-          <p className="cp-estado">
-            <span className="font-mono text-[10px] tracking-[0.2em] text-emerald-accent/80 mr-2.5">ESTADO</span>
-            En producción en Tierra del Fuego. Lo usan brigadistas y personal de gobierno, con acceso restringido.
-          </p>
-        </div>
-
         <figure className="cp-lamina">
-          <div className="cp-pila" style={{ maxWidth: `max(320px, calc((100vh - 540px) * ${(VB.w / VB.h).toFixed(3)}))` }}>
+          <div className="cp-pila" style={{ '--cp-aspecto': (VB.w / VB.h).toFixed(3) }}>
             {/* el suelo: la isla entera con su mar, el bosque nativo rayado, los lagos y la costa */}
             <svg className="cp-suelo" viewBox={viewBox} role="img" aria-label="La Isla Grande de Tierra del Fuego en perspectiva, con las capas de Penon apiladas encima">
               <defs>
@@ -415,5 +419,6 @@ export default function Capas() {
         </figure>
       </div>
     </div>
+    </>
   )
 }
