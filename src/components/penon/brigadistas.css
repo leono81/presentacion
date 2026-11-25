@@ -37,8 +37,9 @@
   position: relative;
   margin: 0;
   aspect-ratio: 2 / 1;
-  /* que entre entero debajo del nav en un proyector de 1280x720 o más */
-  max-height: calc(100vh - 88px);
+  /* que el cuadro y los pasos entren juntos debajo del nav: el presentador pasa el mouse por un paso
+     sin perder de vista la película */
+  width: min(100%, calc((100vh - 64px - 170px) * 2));
   margin-inline: auto;
   border-radius: 14px;
   overflow: hidden;
@@ -46,8 +47,9 @@
   border: 1px solid rgb(255 255 255 / 0.06);
 }
 @supports (height: 100svh) {
-  .br-cuadro {
-    max-height: calc(100svh - 88px);
+  .br-cuadro,
+  .br-pasos {
+    width: min(100%, calc((100svh - 64px - 170px) * 2));
   }
 }
 .br-video {
@@ -173,6 +175,12 @@
   border: 1px solid rgb(248 250 252 / 0.55);
   translate: -50% 18px;
 }
+.br-r-recibido[data-abajo] {
+  translate: -50% 18px;
+}
+.br-r-starlink[data-abajo] {
+  translate: -50% 52px;
+}
 
 /* el cartel fijo, arriba a la izquierda */
 .br-badge {
@@ -293,6 +301,9 @@
 .br-pausa[data-visible] {
   opacity: 1;
 }
+.br-pausa svg {
+  color: var(--br-ambar);
+}
 .br-pausa i {
   width: 8px;
   height: 9px;
@@ -305,7 +316,7 @@
   right: clamp(12px, 1.6%, 28px);
   top: 50%;
   translate: 0 -50%;
-  width: clamp(384px, 27%, 470px);
+  width: clamp(340px, 29%, 470px);
   padding: 14px 16px 12px;
   border-radius: 10px;
   background: rgb(5 11 24 / 0.86);
@@ -331,12 +342,12 @@
 .br-fila {
   --vis: 1;
   display: grid;
-  grid-template-columns: 1.55fr 0.95fr 1.05fr 0.8fr 1.35fr;
+  grid-template-columns: 1.75fr 0.95fr 1.05fr 0.65fr 1.3fr;
   gap: 6px;
   align-items: center;
   padding: 7px 8px;
   border-radius: 6px;
-  font-size: clamp(11px, 0.78vw, 13.5px);
+  font-size: clamp(10.5px, 0.78vw, 13.5px);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: rgb(226 232 240 / calc(0.25 + 0.75 * var(--vis)));
@@ -427,10 +438,13 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: clamp(12px, 2vw, 28px);
-  max-width: 1920px;
+  width: min(100%, calc((100vh - 64px - 170px) * 2));
 }
 .br-pasos li {
   position: relative;
+  cursor: pointer;
+  outline: none;
+  border-radius: 2px;
   padding: 14px 4px 0 44px;
   border-top: 1px solid rgb(255 255 255 / 0.08);
   transition: border-color 0.5s ease;
@@ -447,6 +461,13 @@
 }
 .br-pasos li[data-activo]::before {
   width: 100%;
+}
+.br-pasos li:hover h4,
+.br-pasos li:focus-visible h4 {
+  color: var(--br-blanco);
+}
+.br-pasos li:focus-visible {
+  box-shadow: 0 0 0 2px rgb(245 158 11 / 0.5);
 }
 .br-num {
   position: absolute;
@@ -495,7 +516,7 @@
   }
   .br-cuadro {
     aspect-ratio: 4 / 3.4;
-    max-height: none;
+    width: 100%;
     border-radius: 0;
     border-inline: 0;
   }
@@ -577,6 +598,7 @@
   }
   .br-pasos {
     grid-template-columns: minmax(0, 1fr);
+    width: auto;
     padding-inline: 16px;
     gap: 6px;
   }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Satellite, WifiOff } from 'lucide-react'
+import { RotateCcw, Satellite, WifiOff } from 'lucide-react'
 import './brigadistas.css'
 
 /*
@@ -15,6 +15,15 @@ import './brigadistas.css'
 const DIR = '/brigadistas/'
 const QUIETO = 26.9 // con movimiento reducido: el cuadro final, armado
 const REDUCIDO = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
+
+// cada paso es un tramo de la película: con el mouse encima (o tocándolo) arranca desde su principio y
+// se repite mientras siga ahí. El 1 empieza con el satélite; el 2, cuando se arman los enlaces; el 3,
+// cuando se levanta el relieve (antes del fundido del final).
+const TRAMOS = [
+  [0, 10],
+  [9.8, 15],
+  [15, 27.4],
+]
 
 const pasos = [
   {
@@ -62,27 +71,43 @@ export default function Brigadistas() {
   const [cerca, setCerca] = useState(false)
   const [pista, setPista] = useState(null)
   const [paso, setPaso] = useState(REDUCIDO ? 2 : -1)
-  // con el mouse sobre la explicación (el texto de arriba o los pasos) la película se queda quieta
+  // para presentar: el mouse sobre un paso salta a su tramo y lo repite; sobre el texto de arriba, pausa
   const visibleRef = useRef(false)
-  const encimaRef = useRef(false)
-  const [enPausa, setEnPausa] = useState(false)
+  const pausaRef = useRef(false)
+  const tramoRef = useRef(null)
+  const [aviso, setAviso] = useState(null) // null, 'pausa' o el número de paso que se repite
   const seguir = () => {
     const v = videoRef.current
     if (!v || REDUCIDO) return
-    if (visibleRef.current && !encimaRef.current) v.play().catch(() => {})
+    if (visibleRef.current && !pausaRef.current) v.play().catch(() => {})
     else v.pause()
   }
-  const sobreExplicacion = {
+  const sobreTexto = {
     onMouseEnter: () => {
-      encimaRef.current = true
-      setEnPausa(!REDUCIDO)
+      if (REDUCIDO) return
+      pausaRef.current = true
+      setAviso('pausa')
       seguir()
     },
     onMouseLeave: () => {
-      encimaRef.current = false
-      setEnPausa(false)
+      pausaRef.current = false
+      setAviso(null)
       seguir()
     },
+  }
+  const irAPaso = (i) => {
+    const v = videoRef.current
+    if (!v || REDUCIDO || !v.src) return
+    pausaRef.current = false
+    tramoRef.current = TRAMOS[i]
+    setAviso(i)
+    v.currentTime = TRAMOS[i][0]
+    v.play().catch(() => {})
+  }
+  const soltarPaso = () => {
+    tramoRef.current = null
+    setAviso(null)
+    seguir()
   }
   const [angosto, setAngosto] = useState(() => typeof matchMedia !== 'undefined' && matchMedia('(max-width: 900px)').matches)
 
@@ -121,7 +146,7 @@ export default function Brigadistas() {
     const io = new IntersectionObserver(
       ([e]) => {
         visibleRef.current = e.isIntersecting
-        if (e.isIntersecting && !encimaRef.current) v.play().catch(() => {})
+        if (e.isIntersecting && !pausaRef.current) v.play().catch(() => {})
         else v.pause()
       },
       { threshold: 0.3 },
@@ -184,6 +209,13 @@ export default function Brigadistas() {
           // si el rótulo se mete abajo del panel o se sale del cuadro, va a la izquierda del punto
           anchos[k] ??= el.offsetWidth
           el.toggleAttribute('data-izq', px + 20 + anchos[k] > Math.min(panelX, cw - 8))
+          // lo que llega al jefe va arriba de él; si ahí está el cartel fijo, va abajo (y lo de Starlink más abajo)
+          if (k === 'recibido') {
+            const tope = (els.badge?.offsetTop ?? 0) + (els.badge?.offsetHeight ?? 0) + 6
+            const abajo = py - 22 - (el.offsetHeight || 26) < tope
+            el.toggleAttribute('data-abajo', abajo)
+            els.starlink?.toggleAttribute('data-abajo', abajo)
+          }
         }
       }
       const s = pista.s
@@ -242,7 +274,11 @@ export default function Brigadistas() {
     const rvfc = 'requestVideoFrameCallback' in HTMLVideoElement.prototype
     const cuadro = (_, meta) => {
       if (cancelado) return
-      aplicar(meta ? meta.mediaTime : v.currentTime)
+      const t = meta ? meta.mediaTime : v.currentTime
+      // repetir el tramo del paso que tiene el mouse encima
+      const tramo = tramoRef.current
+      if (tramo && (t >= tramo[1] || t < tramo[0] - 0.2)) v.currentTime = tramo[0]
+      aplicar(t)
       id = rvfc ? v.requestVideoFrameCallback(cuadro) : requestAnimationFrame(cuadro)
     }
     id = rvfc ? v.requestVideoFrameCallback(cuadro) : requestAnimationFrame(cuadro)
@@ -268,7 +304,7 @@ export default function Brigadistas() {
             Cada brigadista en el mapa, <span className="text-ember">aunque no haya señal</span>
           </h3>
         </div>
-        <div className="br-texto" {...sobreExplicacion}>
+        <div className="br-texto" {...sobreTexto}>
           <p>
             Cada brigadista lleva una radio Meshtastic que manda su posición y los datos de su equipo y retransmite los de los demás: una red en
             malla que se arma en el terreno, hasta el jefe de brigada. Él los sube a Penon por Starlink.
@@ -316,9 +352,18 @@ export default function Brigadistas() {
               <span>Pruebas de campo próximamente</span>
             </div>
             <div className="br-sim">Simulación · relieve real: Copernicus GLO-30</div>
-            <div className="br-pausa" data-visible={enPausa ? '' : undefined}>
-              <i />
-              En pausa
+            <div className="br-pausa" data-visible={aviso !== null ? '' : undefined}>
+              {typeof aviso === 'number' ? (
+                <>
+                  <RotateCcw className="w-3.5 h-3.5" strokeWidth={2.2} />
+                  Repite · {pasos[aviso].titulo}
+                </>
+              ) : (
+                <>
+                  <i />
+                  En pausa
+                </>
+              )}
             </div>
             {!angosto && <Panel panelRef={panelRef} />}
           </div>
@@ -330,9 +375,19 @@ export default function Brigadistas() {
           </div>
         )}
 
-        <ol className="br-pasos" {...sobreExplicacion}>
+        <ol className="br-pasos">
           {pasos.map((p, i) => (
-            <li key={p.titulo} data-activo={paso === i ? '' : undefined}>
+            <li
+              key={p.titulo}
+              data-activo={(typeof aviso === 'number' ? aviso : paso) === i ? '' : undefined}
+              tabIndex={0}
+              aria-label={`${p.titulo}: ver este tramo de la simulación`}
+              onMouseEnter={() => irAPaso(i)}
+              onMouseLeave={soltarPaso}
+              onFocus={() => irAPaso(i)}
+              onBlur={soltarPaso}
+              onClick={() => irAPaso(i)}
+            >
               <span className="br-num">0{i + 1}</span>
               <h4>{p.titulo}</h4>
               <p>{p.texto}</p>
